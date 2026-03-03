@@ -391,6 +391,7 @@ export const socalRoutes = [
   },
 
   // ── San Diego MTS Blue Line ──
+  // C Street routing downtown (not Bayside). Mid-Coast extension opened Nov 2021.
   {
     id: "sdmts-blue",
     short_name: "Blue",
@@ -400,23 +401,32 @@ export const socalRoutes = [
     agency_id: "sdmts",
     station_ids: [
       "sdmts-utc",
+      "sdmts-executive-dr",
+      "sdmts-ucsd-health-lj",
+      "sdmts-ucsd-central",
       "sdmts-va-medical",
+      "sdmts-nobel-dr",
       "sdmts-balboa-ave",
-      "sdmts-clairemont-mesa",
+      "sdmts-clairemont-dr",
       "sdmts-tecolote",
-      "sdmts-old-town",        // shared with Coaster
-      "sdmts-washington-st",
-      "sdmts-middletown",
+      "sdmts-old-town",        // shared with Green, Coaster
+      "sdmts-washington-st",   // shared with Green
+      "sdmts-middletown",     // shared with Green
+      "sdmts-county-center",  // shared with Green
+      "sdmts-santa-fe-depot", // shared with Orange, Green, Coaster
       "sdmts-america-plaza",
-      "sdmts-santa-fe-depot",  // shared with Orange, Coaster
-      "sdmts-seaport-village", // shared with Orange
-      "sdmts-convention-ctr",  // shared with Orange
-      "sdmts-gaslamp",         // shared with Orange
-      "sdmts-12th-imperial",   // shared with Orange, Green
+      "sdmts-civic-center",
+      "sdmts-5th-ave",
+      "sdmts-city-college",   // shared with Orange
+      "sdmts-park-market",
+      "sdmts-12th-imperial",  // shared with Orange, Green
       "sdmts-barrio-logan",
       "sdmts-harborside",
-      "sdmts-national-city",
+      "sdmts-pacific-fleet",
       "sdmts-8th-street",
+      "sdmts-24th-street",
+      "sdmts-e-street",
+      "sdmts-h-street",
       "sdmts-palomar-st",
       "sdmts-palm-ave",
       "sdmts-iris-ave",
@@ -424,24 +434,33 @@ export const socalRoutes = [
       "sdmts-san-ysidro",
     ],
     coordinates: [
-      [-117.2135, 32.8712],
-      [-117.2302, 32.8734],
-      [-117.1753, 32.8199],
-      [-117.1644, 32.8000],
-      [-117.1567, 32.7738],
-      [-117.1973, 32.7536],
-      [-117.1816, 32.7468],
-      [-117.1712, 32.7391],
-      [-117.1643, 32.7166],
-      [-117.1706, 32.7190],
-      [-117.1664, 32.7107],
-      [-117.1612, 32.7068],
-      [-117.1606, 32.7108],
-      [-117.1526, 32.7139],
+      [-117.2140, 32.8692],
+      [-117.2141, 32.8741],
+      [-117.2235, 32.8819],
+      [-117.2319, 32.8784],
+      [-117.2299, 32.8742],
+      [-117.2305, 32.8669],
+      [-117.2141, 32.8058],
+      [-117.2062, 32.7901],
+      [-117.2051, 32.7699],
+      [-117.1995, 32.7547],
+      [-117.1844, 32.7416],
+      [-117.1749, 32.7337],
+      [-117.1699, 32.7215],
+      [-117.1701, 32.7178],
+      [-117.1689, 32.7165],
+      [-117.1625, 32.7167],
+      [-117.1597, 32.7168],
+      [-117.1542, 32.7162],
+      [-117.1537, 32.7109],
+      [-117.1532, 32.7057],
       [-117.1468, 32.6991],
-      [-117.1287, 32.6844],
-      [-117.1107, 32.6740],
-      [-117.0914, 32.6190],
+      [-117.1249, 32.6861],
+      [-117.1131, 32.6748],
+      [-117.1080, 32.6619],
+      [-117.0990, 32.6530],
+      [-117.0991, 32.6390],
+      [-117.0956, 32.6299],
       [-117.0708, 32.5922],
       [-117.0546, 32.5588],
       [-117.0373, 32.5527],
@@ -451,6 +470,7 @@ export const socalRoutes = [
   },
 
   // ── San Diego MTS Orange Line ──
+  // Bayside routing downtown, then east via Commercial corridor
   {
     id: "sdmts-orange",
     short_name: "Orange",
@@ -460,30 +480,31 @@ export const socalRoutes = [
     agency_id: "sdmts",
     station_ids: [
       "sdmts-courthouse",
-      "sdmts-santa-fe-depot",  // shared with Blue, Coaster
-      "sdmts-seaport-village", // shared with Blue
-      "sdmts-convention-ctr",  // shared with Blue
-      "sdmts-gaslamp",         // shared with Blue
+      "sdmts-santa-fe-depot",  // shared with Blue, Green, Coaster
+      "sdmts-seaport-village", // shared with Green
+      "sdmts-convention-ctr",  // shared with Green
+      "sdmts-gaslamp",         // shared with Green
       "sdmts-12th-imperial",   // shared with Blue, Green
-      "sdmts-city-college",    // shared with Green
-      "sdmts-25th-commercial", // shared with Green
-      "sdmts-32nd-commercial", // shared with Green
-      "sdmts-47th-street",     // shared with Green
-      "sdmts-encanto-62nd",    // shared with Green
-      "sdmts-lemon-grove",     // shared with Green
+      "sdmts-city-college",    // shared with Blue
+      "sdmts-25th-commercial",
+      "sdmts-32nd-commercial",
+      "sdmts-47th-street",
+      "sdmts-encanto-62nd",
+      "sdmts-lemon-grove",
       "sdmts-massachusetts",
-      "sdmts-la-mesa",         // shared with Green
-      "sdmts-amaya-drive",
+      "sdmts-la-mesa",
+      "sdmts-spring-street",
+      "sdmts-amaya-drive",     // shared with Green
       "sdmts-grossmont",       // shared with Green
-      "sdmts-el-cajon",
+      "sdmts-el-cajon",        // shared with Green, Copper
     ],
     coordinates: [
       [-117.1628, 32.7188],
-      [-117.1706, 32.7190],
+      [-117.1701, 32.7178],
       [-117.1664, 32.7107],
       [-117.1612, 32.7068],
       [-117.1606, 32.7108],
-      [-117.1526, 32.7139],
+      [-117.1532, 32.7057],
       [-117.1490, 32.7191],
       [-117.1350, 32.7189],
       [-117.1225, 32.7198],
@@ -492,49 +513,102 @@ export const socalRoutes = [
       [-117.0387, 32.7392],
       [-117.0135, 32.7593],
       [-117.0022, 32.7706],
+      [-117.0171, 32.7570],
       [-116.9854, 32.7806],
-      [-116.9476, 32.7714],
-      [-116.9675, 32.7897],
+      [-117.0074, 32.7753],
+      [-116.9761, 32.7920],
     ],
   },
 
   // ── San Diego MTS Green Line ──
+  // Bayside routing downtown, then north via Old Town, east via Mission Valley.
+  // As of Sept 2024, terminates at El Cajon (Santee moved to Copper Line).
   {
     id: "sdmts-green",
     short_name: "Green",
-    long_name: "Green Line – 12th & Imperial to Santee",
+    long_name: "Green Line – 12th & Imperial to El Cajon",
     route_type: 0,
     route_color: "#00A550",
     agency_id: "sdmts",
     station_ids: [
-      "sdmts-12th-imperial",   // shared with Blue, Orange
-      "sdmts-park-market",
-      "sdmts-city-college",    // shared with Orange
-      "sdmts-25th-commercial", // shared with Orange
-      "sdmts-32nd-commercial", // shared with Orange
-      "sdmts-47th-street",     // shared with Orange
-      "sdmts-encanto-62nd",    // shared with Orange
-      "sdmts-lemon-grove",     // shared with Orange
-      "sdmts-la-mesa",         // shared with Orange
-      "sdmts-grossmont",       // shared with Orange
-      "sdmts-santee",
+      "sdmts-12th-imperial",      // shared with Blue, Orange
+      "sdmts-gaslamp",            // shared with Orange
+      "sdmts-convention-ctr",     // shared with Orange
+      "sdmts-seaport-village",    // shared with Orange
+      "sdmts-santa-fe-depot",     // shared with Blue, Orange, Coaster
+      "sdmts-county-center",      // shared with Blue
+      "sdmts-middletown",        // shared with Blue
+      "sdmts-washington-st",      // shared with Blue
+      "sdmts-old-town",           // shared with Blue, Coaster
+      "sdmts-morena-linda-vista",
+      "sdmts-fashion-valley",
+      "sdmts-hazard-center",
+      "sdmts-mission-valley-ctr",
+      "sdmts-rio-vista",
+      "sdmts-fenton-pkwy",
+      "sdmts-stadium",
+      "sdmts-mission-san-diego",
+      "sdmts-grantville",
+      "sdmts-sdsu",
+      "sdmts-ucsd-health-east",
+      "sdmts-70th-street",
+      "sdmts-grossmont",          // shared with Orange
+      "sdmts-amaya-drive",        // shared with Orange
+      "sdmts-el-cajon",           // shared with Orange, Copper
     ],
     coordinates: [
-      [-117.1526, 32.7139],
-      [-117.1580, 32.7139],
-      [-117.1490, 32.7191],
-      [-117.1350, 32.7189],
-      [-117.1225, 32.7198],
-      [-117.0946, 32.7205],
-      [-117.0714, 32.7175],
-      [-117.0387, 32.7392],
-      [-117.0022, 32.7706],
-      [-116.9476, 32.7714],
-      [-116.9802, 32.8477],
+      [-117.1532, 32.7057],
+      [-117.1606, 32.7108],
+      [-117.1612, 32.7068],
+      [-117.1664, 32.7107],
+      [-117.1701, 32.7178],
+      [-117.1699, 32.7215],
+      [-117.1749, 32.7337],
+      [-117.1844, 32.7416],
+      [-117.1995, 32.7547],
+      [-117.2002, 32.7676],
+      [-117.1594, 32.7674],
+      [-117.1547, 32.7726],
+      [-117.1430, 32.7693],
+      [-117.1418, 32.7736],
+      [-117.1275, 32.7760],
+      [-117.1181, 32.7753],
+      [-117.1015, 32.7784],
+      [-117.0893, 32.7762],
+      [-117.0706, 32.7733],
+      [-117.0568, 32.7773],
+      [-117.0420, 32.7720],
+      [-117.0074, 32.7753],
+      [-117.0018, 32.7855],
+      [-116.9761, 32.7920],
+    ],
+  },
+
+  // ── San Diego MTS Copper Line ──
+  // New as of Sept 29, 2024. Replaced Green Line service east of El Cajon.
+  {
+    id: "sdmts-copper",
+    short_name: "Copper",
+    long_name: "Copper Line – El Cajon to Santee",
+    route_type: 0,
+    route_color: "#B87333",
+    agency_id: "sdmts",
+    station_ids: [
+      "sdmts-el-cajon",         // shared with Orange, Green
+      "sdmts-arnele-ave",
+      "sdmts-gillespie-field",
+      "sdmts-santee",           // Santee Town Center
+    ],
+    coordinates: [
+      [-116.9761, 32.7920],
+      [-116.9757, 32.8045],
+      [-116.9821, 32.8271],
+      [-116.9807, 32.8419],
     ],
   },
 
   // ── NCTD Sprinter ──
+  // All 15 stations from Oceanside to Escondido
   {
     id: "nctd-sprinter",
     short_name: "SPR",
@@ -545,22 +619,36 @@ export const socalRoutes = [
     station_ids: [
       "nctd-oceanside",        // shared with Coaster
       "nctd-coast-highway",
+      "nctd-crouch-st",
+      "nctd-el-camino-real",
+      "nctd-rancho-del-oro",
+      "nctd-college-blvd",
+      "nctd-melrose-dr",
       "nctd-vista",
+      "nctd-escondido-ave",
       "nctd-buena-creek",
       "nctd-palomar",
       "nctd-san-marcos-civic",
       "nctd-cal-state-sm",
+      "nctd-nordahl-rd",
       "nctd-escondido",
     ],
     coordinates: [
-      [-117.3798, 33.1970],
-      [-117.3731, 33.1937],
-      [-117.2428, 33.2000],
-      [-117.2025, 33.1682],
-      [-117.1710, 33.1608],
-      [-117.1629, 33.1430],
-      [-117.1555, 33.1275],
-      [-117.0840, 33.1210],
+      [-117.3795, 33.1919],
+      [-117.3689, 33.1818],
+      [-117.3536, 33.1946],
+      [-117.3324, 33.1997],
+      [-117.3116, 33.2015],
+      [-117.2882, 33.2046],
+      [-117.2597, 33.2194],
+      [-117.2450, 33.2032],
+      [-117.2370, 33.1902],
+      [-117.2071, 33.1735],
+      [-117.1851, 33.1469],
+      [-117.1616, 33.1422],
+      [-117.1536, 33.1348],
+      [-117.1240, 33.1312],
+      [-117.0923, 33.1184],
     ],
   },
 
@@ -731,59 +819,95 @@ export const socalStations = [
   { id: "sacrt-glenn",           name: "Glenn",                     lat: 38.6722, lng: -121.2399, route_ids: ["sacrt-gold"],                    agency_id: "sacrt" },
   { id: "sacrt-historic-folsom", name: "Historic Folsom",           lat: 38.6789, lng: -121.1728, route_ids: ["sacrt-gold"],                    agency_id: "sacrt" },
 
-  // ── San Diego MTS Blue Line ──
-  { id: "sdmts-utc",             name: "UTC",                       lat: 32.8712, lng: -117.2135, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-va-medical",      name: "VA Medical Center",         lat: 32.8734, lng: -117.2302, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-balboa-ave",      name: "Balboa Avenue",             lat: 32.8199, lng: -117.1753, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-clairemont-mesa", name: "Clairemont Mesa",           lat: 32.8000, lng: -117.1644, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-tecolote",        name: "Tecolote",                  lat: 32.7738, lng: -117.1567, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-old-town",        name: "Old Town",                  lat: 32.7536, lng: -117.1973, route_ids: ["sdmts-blue", "nctd-coaster"],    agency_id: "sdmts" },
-  { id: "sdmts-washington-st",    name: "Washington Street",         lat: 32.7468, lng: -117.1816, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-middletown",      name: "Middletown",                lat: 32.7391, lng: -117.1712, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-america-plaza",   name: "America Plaza",             lat: 32.7166, lng: -117.1643, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-santa-fe-depot",  name: "Santa Fe Depot",            lat: 32.7190, lng: -117.1706, route_ids: ["sdmts-blue", "sdmts-orange", "nctd-coaster"], agency_id: "sdmts" },
-  { id: "sdmts-seaport-village", name: "Seaport Village",           lat: 32.7107, lng: -117.1664, route_ids: ["sdmts-blue", "sdmts-orange"],    agency_id: "sdmts" },
-  { id: "sdmts-convention-ctr",  name: "Convention Center",         lat: 32.7068, lng: -117.1612, route_ids: ["sdmts-blue", "sdmts-orange"],    agency_id: "sdmts" },
-  { id: "sdmts-gaslamp",         name: "Gaslamp Quarter",           lat: 32.7108, lng: -117.1606, route_ids: ["sdmts-blue", "sdmts-orange"],    agency_id: "sdmts" },
-  { id: "sdmts-12th-imperial",   name: "12th & Imperial",           lat: 32.7139, lng: -117.1526, route_ids: ["sdmts-blue", "sdmts-orange", "sdmts-green"], agency_id: "sdmts" },
-  { id: "sdmts-barrio-logan",    name: "Barrio Logan",              lat: 32.6991, lng: -117.1468, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-harborside",      name: "Harborside",                lat: 32.6844, lng: -117.1287, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-national-city",   name: "National City",             lat: 32.6740, lng: -117.1107, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-8th-street",      name: "8th Street",                lat: 32.6190, lng: -117.0914, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-palomar-st",      name: "Palomar Street",            lat: 32.5922, lng: -117.0708, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-palm-ave",        name: "Palm Avenue",               lat: 32.5588, lng: -117.0546, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-iris-ave",        name: "Iris Avenue",               lat: 32.5527, lng: -117.0373, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-beyer",           name: "Beyer",                     lat: 32.5444, lng: -117.0315, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
-  { id: "sdmts-san-ysidro",      name: "San Ysidro",                lat: 32.5397, lng: -117.0279, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  // ── San Diego MTS Blue Line — Mid-Coast extension + C Street routing ──
+  { id: "sdmts-utc",             name: "UTC Transit Center",        lat: 32.8692, lng: -117.2140, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-executive-dr",   name: "Executive Drive",            lat: 32.8741, lng: -117.2141, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-ucsd-health-lj", name: "UC San Diego Health La Jolla", lat: 32.8819, lng: -117.2235, route_ids: ["sdmts-blue"],                  agency_id: "sdmts" },
+  { id: "sdmts-ucsd-central",   name: "UC San Diego Central",       lat: 32.8784, lng: -117.2319, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-va-medical",     name: "VA Medical Center",          lat: 32.8742, lng: -117.2299, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-nobel-dr",       name: "Nobel Drive",                lat: 32.8669, lng: -117.2305, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-balboa-ave",     name: "Balboa Avenue",              lat: 32.8058, lng: -117.2141, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-clairemont-dr",  name: "Clairemont Drive",           lat: 32.7901, lng: -117.2062, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-tecolote",       name: "Tecolote Road",              lat: 32.7699, lng: -117.2051, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-old-town",       name: "Old Town",                   lat: 32.7547, lng: -117.1995, route_ids: ["sdmts-blue", "sdmts-green", "nctd-coaster"], agency_id: "sdmts" },
+  { id: "sdmts-washington-st",   name: "Washington Street",          lat: 32.7416, lng: -117.1844, route_ids: ["sdmts-blue", "sdmts-green"],     agency_id: "sdmts" },
+  { id: "sdmts-middletown",     name: "Middletown",                 lat: 32.7337, lng: -117.1749, route_ids: ["sdmts-blue", "sdmts-green"],     agency_id: "sdmts" },
+  { id: "sdmts-county-center",  name: "County Center/Little Italy", lat: 32.7215, lng: -117.1699, route_ids: ["sdmts-blue", "sdmts-green"],     agency_id: "sdmts" },
+  { id: "sdmts-santa-fe-depot", name: "Santa Fe Depot",             lat: 32.7178, lng: -117.1701, route_ids: ["sdmts-blue", "sdmts-orange", "sdmts-green", "nctd-coaster"], agency_id: "sdmts" },
+  { id: "sdmts-america-plaza",  name: "America Plaza",              lat: 32.7165, lng: -117.1689, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-civic-center",   name: "Civic Center",               lat: 32.7167, lng: -117.1625, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-5th-ave",        name: "5th Avenue",                 lat: 32.7168, lng: -117.1597, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  // Bayside routing stations (Green + Orange lines)
+  { id: "sdmts-seaport-village", name: "Seaport Village",           lat: 32.7107, lng: -117.1664, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  { id: "sdmts-convention-ctr", name: "Convention Center",          lat: 32.7068, lng: -117.1612, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  { id: "sdmts-gaslamp",        name: "Gaslamp Quarter",            lat: 32.7108, lng: -117.1606, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  // Shared downtown stations
+  { id: "sdmts-city-college",   name: "City College",               lat: 32.7162, lng: -117.1542, route_ids: ["sdmts-blue", "sdmts-orange"],    agency_id: "sdmts" },
+  { id: "sdmts-park-market",    name: "Park & Market",              lat: 32.7109, lng: -117.1537, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-12th-imperial",  name: "12th & Imperial",            lat: 32.7057, lng: -117.1532, route_ids: ["sdmts-blue", "sdmts-orange", "sdmts-green"], agency_id: "sdmts" },
+  // Blue Line south
+  { id: "sdmts-barrio-logan",   name: "Barrio Logan",               lat: 32.6991, lng: -117.1468, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-harborside",     name: "Harborside",                 lat: 32.6861, lng: -117.1249, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-pacific-fleet",  name: "Pacific Fleet",              lat: 32.6748, lng: -117.1131, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-8th-street",     name: "8th Street",                 lat: 32.6619, lng: -117.1080, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-24th-street",    name: "24th Street",                lat: 32.6530, lng: -117.0990, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-e-street",       name: "E Street",                   lat: 32.6390, lng: -117.0991, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-h-street",       name: "H Street",                   lat: 32.6299, lng: -117.0956, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-palomar-st",     name: "Palomar Street",             lat: 32.5922, lng: -117.0708, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-palm-ave",       name: "Palm Avenue",                lat: 32.5588, lng: -117.0546, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-iris-ave",       name: "Iris Avenue",                lat: 32.5527, lng: -117.0373, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-beyer",          name: "Beyer Blvd",                 lat: 32.5444, lng: -117.0315, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
+  { id: "sdmts-san-ysidro",     name: "San Ysidro/Tijuana",         lat: 32.5397, lng: -117.0279, route_ids: ["sdmts-blue"],                    agency_id: "sdmts" },
 
-  // ── San Diego MTS Orange Line — new stations only ──
+  // ── San Diego MTS Orange Line — Commercial corridor stations ──
   { id: "sdmts-courthouse",      name: "Courthouse",                lat: 32.7188, lng: -117.1628, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
-  { id: "sdmts-city-college",    name: "City College",              lat: 32.7191, lng: -117.1490, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-25th-commercial", name: "25th & Commercial",         lat: 32.7189, lng: -117.1350, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-32nd-commercial", name: "32nd & Commercial",         lat: 32.7198, lng: -117.1225, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-47th-street",     name: "47th Street",               lat: 32.7205, lng: -117.0946, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-encanto-62nd",    name: "Encanto/62nd",              lat: 32.7175, lng: -117.0714, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-lemon-grove",     name: "Lemon Grove",               lat: 32.7392, lng: -117.0387, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  { id: "sdmts-25th-commercial", name: "25th & Commercial",         lat: 32.7189, lng: -117.1350, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-32nd-commercial", name: "32nd & Commercial",         lat: 32.7198, lng: -117.1225, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-47th-street",     name: "47th Street",               lat: 32.7205, lng: -117.0946, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-encanto-62nd",    name: "Encanto/62nd",              lat: 32.7175, lng: -117.0714, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-lemon-grove",     name: "Lemon Grove Depot",         lat: 32.7392, lng: -117.0387, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
   { id: "sdmts-massachusetts",   name: "Massachusetts Avenue",      lat: 32.7593, lng: -117.0135, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
-  { id: "sdmts-la-mesa",         name: "La Mesa",                   lat: 32.7706, lng: -117.0022, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-amaya-drive",     name: "Amaya Drive",               lat: 32.7806, lng: -116.9854, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
-  { id: "sdmts-grossmont",       name: "Grossmont",                 lat: 32.7714, lng: -116.9476, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
-  { id: "sdmts-el-cajon",        name: "El Cajon",                  lat: 32.7897, lng: -116.9675, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-la-mesa",         name: "La Mesa Blvd",              lat: 32.7706, lng: -117.0022, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-spring-street",   name: "Spring Street",             lat: 32.7570, lng: -117.0171, route_ids: ["sdmts-orange"],                  agency_id: "sdmts" },
+  { id: "sdmts-amaya-drive",     name: "Amaya Drive",               lat: 32.7855, lng: -117.0018, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  { id: "sdmts-grossmont",       name: "Grossmont Transit Center",  lat: 32.7753, lng: -117.0074, route_ids: ["sdmts-orange", "sdmts-green"],   agency_id: "sdmts" },
+  { id: "sdmts-el-cajon",        name: "El Cajon Transit Center",   lat: 32.7920, lng: -116.9761, route_ids: ["sdmts-orange", "sdmts-green", "sdmts-copper"], agency_id: "sdmts" },
 
-  // ── San Diego MTS Green Line — new stations only ──
-  // Most Green Line stations are shared with Orange and/or Blue (defined above)
-  { id: "sdmts-park-market",     name: "Park & Market",             lat: 32.7139, lng: -117.1580, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
-  { id: "sdmts-santee",          name: "Santee Town Center",        lat: 32.8477, lng: -116.9802, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  // ── San Diego MTS Green Line — Mission Valley stations (unique to Green) ──
+  { id: "sdmts-morena-linda-vista", name: "Morena/Linda Vista",     lat: 32.7676, lng: -117.2002, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-fashion-valley",  name: "Fashion Valley",            lat: 32.7674, lng: -117.1594, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-hazard-center",   name: "Hazard Center",             lat: 32.7726, lng: -117.1547, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-mission-valley-ctr", name: "Mission Valley Center",  lat: 32.7693, lng: -117.1430, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-rio-vista",       name: "Rio Vista",                 lat: 32.7736, lng: -117.1418, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-fenton-pkwy",     name: "Fenton Parkway",            lat: 32.7760, lng: -117.1275, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-stadium",         name: "Stadium",                   lat: 32.7753, lng: -117.1181, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-mission-san-diego", name: "Mission San Diego",       lat: 32.7784, lng: -117.1015, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-grantville",      name: "Grantville",                lat: 32.7762, lng: -117.0893, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-sdsu",            name: "SDSU Transit Center",       lat: 32.7733, lng: -117.0706, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-ucsd-health-east", name: "UC San Diego Health East", lat: 32.7773, lng: -117.0568, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
+  { id: "sdmts-70th-street",     name: "70th Street",               lat: 32.7720, lng: -117.0420, route_ids: ["sdmts-green"],                   agency_id: "sdmts" },
 
-  // ── NCTD Sprinter ──
-  { id: "nctd-oceanside",        name: "Oceanside Transit Center",  lat: 33.1970, lng: -117.3798, route_ids: ["nctd-sprinter", "nctd-coaster"], agency_id: "nctd" },
-  { id: "nctd-coast-highway",    name: "Coast Highway",             lat: 33.1937, lng: -117.3731, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-vista",            name: "Vista",                     lat: 33.2000, lng: -117.2428, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-buena-creek",      name: "Buena Creek",               lat: 33.1682, lng: -117.2025, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-palomar",          name: "Palomar",                   lat: 33.1608, lng: -117.1710, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-san-marcos-civic", name: "San Marcos Civic Center",   lat: 33.1430, lng: -117.1629, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-cal-state-sm",     name: "Cal State San Marcos",      lat: 33.1275, lng: -117.1555, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
-  { id: "nctd-escondido",        name: "Escondido",                 lat: 33.1210, lng: -117.0840, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  // ── San Diego MTS Copper Line — new Sept 2024 ──
+  { id: "sdmts-arnele-ave",      name: "Arnele Avenue",             lat: 32.8045, lng: -116.9757, route_ids: ["sdmts-copper"],                  agency_id: "sdmts" },
+  { id: "sdmts-gillespie-field", name: "Gillespie Field",           lat: 32.8271, lng: -116.9821, route_ids: ["sdmts-copper"],                  agency_id: "sdmts" },
+  { id: "sdmts-santee",          name: "Santee Town Center",        lat: 32.8419, lng: -116.9807, route_ids: ["sdmts-copper"],                  agency_id: "sdmts" },
+
+  // ── NCTD Sprinter — all 15 stations ──
+  { id: "nctd-oceanside",        name: "Oceanside Transit Center",  lat: 33.1919, lng: -117.3795, route_ids: ["nctd-sprinter", "nctd-coaster"], agency_id: "nctd" },
+  { id: "nctd-coast-highway",    name: "Coast Highway",             lat: 33.1818, lng: -117.3689, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-crouch-st",        name: "Crouch Street",             lat: 33.1946, lng: -117.3536, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-el-camino-real",   name: "El Camino Real",            lat: 33.1997, lng: -117.3324, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-rancho-del-oro",   name: "Rancho Del Oro",            lat: 33.2015, lng: -117.3116, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-college-blvd",     name: "College Boulevard",         lat: 33.2046, lng: -117.2882, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-melrose-dr",       name: "Melrose Drive",             lat: 33.2194, lng: -117.2597, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-vista",            name: "Vista Transit Center",      lat: 33.2032, lng: -117.2450, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-escondido-ave",    name: "Escondido Avenue",          lat: 33.1902, lng: -117.2370, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-buena-creek",      name: "Buena Creek",               lat: 33.1735, lng: -117.2071, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-palomar",          name: "Palomar College",           lat: 33.1469, lng: -117.1851, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-san-marcos-civic", name: "San Marcos Civic Center",   lat: 33.1422, lng: -117.1616, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-cal-state-sm",     name: "Cal State San Marcos",      lat: 33.1348, lng: -117.1536, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-nordahl-rd",       name: "Nordahl Road",              lat: 33.1312, lng: -117.1240, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
+  { id: "nctd-escondido",        name: "Escondido Transit Center",  lat: 33.1184, lng: -117.0923, route_ids: ["nctd-sprinter"],                 agency_id: "nctd" },
 
   // ── NCTD Coaster — new stations only (Oceanside shared above; Old Town + Santa Fe shared with SD MTS) ──
   { id: "nctd-carlsbad-village",     name: "Carlsbad Village",       lat: 33.1580, lng: -117.3456, route_ids: ["nctd-coaster"],                 agency_id: "nctd" },
