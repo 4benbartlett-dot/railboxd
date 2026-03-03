@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/stores/app-store";
 import { useHeroPhoto } from "@/hooks/use-place-photos";
+import { createClient } from "@/lib/supabase/client";
 import {
   getStationById,
   getRouteById,
@@ -35,32 +36,14 @@ function textColor(bg: string) {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? "#0a0c0f" : "#ffffff";
 }
 
-const MOCK_REVIEWS = [
-  {
-    id: "sr1",
-    username: "platformwatcher",
-    avatarColor: "#e54065",
-    text: "Clean platforms, clear signage, and that satisfying whoosh when the train arrives. A well-run station.",
-    date: "Feb 20",
-    likes: 12,
-  },
-  {
-    id: "sr2",
-    username: "dailycommuter",
-    avatarColor: "#40bcf4",
-    text: "My home station. Gets crowded during rush hour but the frequency makes up for it.",
-    date: "Feb 8",
-    likes: 7,
-  },
-  {
-    id: "sr3",
-    username: "transit_explorer",
-    avatarColor: "#00e054",
-    text: "Great transfer point. Easy to navigate between lines. The neighborhood around it is worth exploring too.",
-    date: "Jan 22",
-    likes: 19,
-  },
-];
+interface StationReview {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+  text: string;
+  date: string;
+  likes: number;
+}
 
 type Tab = "routes" | "info" | "activity";
 
@@ -104,11 +87,66 @@ export default function StationDetailPage() {
     (log) => log.startStationId === station.id || log.endStationId === station.id,
   );
 
-  // Mock community stats (seeded from station name for consistency)
-  const seed = station.name.length + station.lat * 10;
-  const mockVisitors = Math.floor(120 + (seed * 17) % 400);
-  const mockFans = Math.floor(8 + (seed * 7) % 60);
-  const mockLists = Math.floor(3 + (seed * 3) % 20);
+  // Community stats + reviews from Supabase
+  const [stationReviews, setStationReviews] = useState<StationReview[]>([]);
+  const [communityVisitors, setCommunityVisitors] = useState(0);
+  const [communityFans, setCommunityFans] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadStationData() {
+      try {
+        const supabase = createClient();
+        // Count distinct users who have logged trips to/from this station
+        const { data: logData } = await supabase
+          .from("route_logs")
+          .select("user_id, start_station_id, end_station_id")
+          .or(`start_station_id.eq.${id},end_station_id.eq.${id}`);
+        if (!cancelled && logData) {
+          const uniqueUsers = new Set(logData.map((r: Record<string, unknown>) => r.user_id as string));
+          setCommunityVisitors(uniqueUsers.size);
+        }
+        // Count favorites for routes serving this station
+        const routeIds = station?.route_ids ?? [];
+        if (routeIds.length > 0) {
+          const { count } = await supabase
+            .from("favorites")
+            .select("user_id", { count: "exact", head: true })
+            .in("route_id", routeIds);
+          if (!cancelled) setCommunityFans(count ?? 0);
+        }
+        // Fetch reviews that mention station routes
+        if (routeIds.length > 0) {
+          const { data: reviewData } = await supabase
+            .from("reviews")
+            .select("id, text, rating, created_at, likes(count), profiles(username, avatar_url)")
+            .in("route_id", routeIds)
+            .order("created_at", { ascending: false })
+            .limit(5);
+          if (!cancelled && reviewData) {
+            const mapped: StationReview[] = reviewData.map((row: Record<string, unknown>) => {
+              const profile = row.profiles as Record<string, unknown> | null;
+              const likesArr = row.likes as { count: number }[] | undefined;
+              const createdAt = row.created_at as string;
+              return {
+                id: row.id as string,
+                username: (profile?.username as string) ?? "rider",
+                avatarUrl: (profile?.avatar_url as string | null) ?? null,
+                text: row.text as string,
+                date: createdAt ? new Date(createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "",
+                likes: likesArr?.[0]?.count ?? 0,
+              };
+            });
+            setStationReviews(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load station community data:", err);
+      }
+    }
+    loadStationData();
+    return () => { cancelled = true; };
+  }, [id, station?.route_ids]);
 
   // Find nearby/related stations (same agency, not this one)
   const relatedStations = demoStations
@@ -510,9 +548,9 @@ export default function StationDetailPage() {
             {/* Mobile: stats */}
             <div className="lg:hidden mt-8">
               <div className="flex items-baseline gap-6 text-xs text-[#678] uppercase tracking-wider mb-4">
-                <div><span className="text-lg font-bold text-white block leading-none">{mockVisitors}</span>Visitors</div>
-                <div><span className="text-lg font-bold text-white block leading-none">{mockFans}</span>Fans</div>
-                <div><span className="text-lg font-bold text-white block leading-none">{mockLists}</span>Lists</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{communityVisitors}</span>Visitors</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{communityFans}</span>Fans</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{stationReviews.length}</span>Reviews</div>
               </div>
             </div>
 
@@ -520,14 +558,20 @@ export default function StationDetailPage() {
             <div className="lg:hidden mt-4">
               <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-[0.15em] mb-3">Recent Reviews</h3>
               <div className="divide-y divide-[#2c3440]">
-                {MOCK_REVIEWS.map((rev) => (
+                {stationReviews.length === 0 && (
+                  <p className="text-xs text-[#567] py-3">No reviews yet. Be the first!</p>
+                )}
+                {stationReviews.map((rev) => (
                   <div key={rev.id} className="py-3 first:pt-0">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
-                        style={{ backgroundColor: rev.avatarColor }}>
-                        {rev.username[0].toUpperCase()}
-                      </div>
-                      <span className="text-[11px] font-semibold text-white">{rev.username}</span>
+                      {rev.avatarUrl ? (
+                        <img src={rev.avatarUrl} alt={rev.username} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 bg-[var(--rb-accent)]/30">
+                          {rev.username[0].toUpperCase()}
+                        </div>
+                      )}
+                      <Link href={`/profile/${rev.username}`} className="text-[11px] font-semibold text-white hover:text-[var(--rb-accent)] transition-colors">{rev.username}</Link>
                       <span className="text-[10px] text-[#456] ml-auto">{rev.date}</span>
                     </div>
                     <p className="text-[12px] text-[#9ab] leading-relaxed ml-8">{rev.text}</p>
@@ -546,9 +590,9 @@ export default function StationDetailPage() {
           <div className="hidden lg:block w-[240px] flex-shrink-0 pt-1">
             <div className="mb-6">
               <div className="flex items-baseline gap-5 text-[11px] text-[#678] uppercase tracking-wider">
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{mockVisitors}</span>Visitors</div>
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{mockFans}</span>Fans</div>
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{mockLists}</span>Lists</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{communityVisitors}</span>Visitors</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{communityFans}</span>Fans</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{stationReviews.length}</span>Reviews</div>
               </div>
             </div>
 
@@ -583,14 +627,20 @@ export default function StationDetailPage() {
             <div>
               <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-wider mb-3">Recent Reviews</h3>
               <div className="space-y-3">
-                {MOCK_REVIEWS.slice(0, 2).map((rev) => (
+                {stationReviews.length === 0 && (
+                  <p className="text-[11px] text-[#567]">No reviews yet.</p>
+                )}
+                {stationReviews.slice(0, 2).map((rev) => (
                   <div key={rev.id} className="group cursor-pointer">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
-                        style={{ backgroundColor: rev.avatarColor }}>
-                        {rev.username[0].toUpperCase()}
-                      </div>
-                      <span className="text-[11px] font-medium text-[#9ab]">{rev.username}</span>
+                      {rev.avatarUrl ? (
+                        <img src={rev.avatarUrl} alt={rev.username} className="w-5 h-5 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-white bg-[var(--rb-accent)]/30">
+                          {rev.username[0].toUpperCase()}
+                        </div>
+                      )}
+                      <Link href={`/profile/${rev.username}`} className="text-[11px] font-medium text-[#9ab] hover:text-[var(--rb-accent)] transition-colors">{rev.username}</Link>
                       <span className="text-[9px] text-[#456] ml-auto">{rev.date}</span>
                     </div>
                     <p className="text-[11px] text-[#567] line-clamp-2 group-hover:text-[#9ab] transition-colors leading-snug">

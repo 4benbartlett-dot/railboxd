@@ -14,6 +14,7 @@ export interface DemoRoute {
   id: string;
   short_name: string;
   long_name: string;
+  description?: string;
   route_type: number; // 0=light rail/tram, 1=heavy rail/subway, 2=commuter rail, 3=bus
   route_color: string;
   agency_id: string;
@@ -43,6 +44,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "sdmts-blue",
     short_name: "Blue",
     long_name: "America Plaza – San Ysidro",
+    description: "San Diego's original trolley line, running 15.4 miles from downtown through National City and Chula Vista to the San Ysidro border crossing — the busiest international land crossing in the Western Hemisphere.",
     route_type: 0,
     route_color: "#0072BC",
     agency_id: "sdmts",
@@ -66,6 +68,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "sdmts-orange",
     short_name: "Orange",
     long_name: "Courthouse – El Cajon Transit Center",
+    description: "Connecting the waterfront to the East County suburbs, the Orange Line runs through the Gaslamp Quarter, City Heights, La Mesa, and Grossmont before reaching El Cajon. A great cross-section of San Diego's diverse neighborhoods.",
     route_type: 0,
     route_color: "#F7931E",
     agency_id: "sdmts",
@@ -89,6 +92,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "sdmts-green",
     short_name: "Green",
     long_name: "12th & Imperial – Santee Town Center",
+    description: "Following the San Diego River valley from downtown through Mission Valley, past SDSU, and into the East County foothills. Parallels miles of the San Diego River Trail — perfect for bike-and-ride trips.",
     route_type: 0,
     route_color: "#00A84F",
     agency_id: "sdmts",
@@ -110,6 +114,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "sdmts-copper",
     short_name: "Copper",
     long_name: "UTC – SDSU via Mid-Coast",
+    description: "San Diego's newest trolley line, opened in 2024. Runs through the UC San Diego campus, past VA Medical Center, and through Clairemont before connecting to Fashion Valley and SDSU. A long-awaited link for North County commuters.",
     route_type: 0,
     route_color: "#C15A2E",
     agency_id: "sdmts",
@@ -132,6 +137,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "sdmts-silver",
     short_name: "Silver",
     long_name: "South Bay to Downtown Rapid",
+    description: "MTS Rapid bus service connecting Otay Ranch and South Bay communities to downtown San Diego via dedicated bus lanes and limited stops. Fast, frequent, and bridging the gap until future rail expansion.",
     route_type: 3,
     route_color: "#A7A9AC",
     agency_id: "mts-bus",
@@ -150,6 +156,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "nctd-sprinter",
     short_name: "Sprinter",
     long_name: "Oceanside – Escondido",
+    description: "A 22-mile hybrid light rail/diesel line cutting east-west across North County from the coastal Oceanside Transit Center to inland Escondido, serving Vista, Cal State San Marcos, and Palomar College along the way.",
     route_type: 0,
     route_color: "#E31837",
     agency_id: "nctd",
@@ -172,6 +179,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "nctd-coaster",
     short_name: "Coaster",
     long_name: "Oceanside – San Diego Old Town",
+    description: "A scenic commuter rail line hugging the Pacific Coast for 41 miles from Oceanside through Encinitas, Solana Beach, and Sorrento Valley to downtown San Diego. One of the most beautiful train rides in Southern California.",
     route_type: 2,
     route_color: "#004B87",
     agency_id: "nctd",
@@ -191,6 +199,7 @@ export const demoRoutes: DemoRoute[] = [
     id: "amtrak-surfliner",
     short_name: "Surfliner",
     long_name: "San Diego – Los Angeles Pacific Surfliner",
+    description: "Amtrak's flagship Pacific Coast corridor, running 170 miles from San Diego's Santa Fe Depot to LA Union Station through Orange County's beach towns. Stunning ocean views between San Clemente and Del Mar make it one of America's most scenic rail journeys.",
     route_type: 2,
     route_color: "#1C5BA2",
     agency_id: "amtrak",

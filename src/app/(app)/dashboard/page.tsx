@@ -7,6 +7,8 @@ import {
   getRouteById,
   getAgencyById,
 } from "@/lib/demo-data";
+import { createClient } from "@/lib/supabase/client";
+import { fetchPublicActivity, fetchPublicReviews } from "@/lib/supabase/api";
 import {
   Train,
   MapPin,
@@ -90,6 +92,22 @@ function SectionHeader({
       )}
     </div>
   );
+}
+
+/* ─── relative time helper ─── */
+
+function relativeTime(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffMs = now - then;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w ago`;
 }
 
 /* ─── Hero backdrop with auto-rotating featured routes ─── */
@@ -239,28 +257,6 @@ function HeroBackdrop() {
   );
 }
 
-// Sample community activity — shown as example content.
-// In production, this would come from the Supabase social feed.
-
-const friendActivity = [
-  { id: "fa-1", avatar: "AK", username: "alex_k", action: "rode", routeId: "sdmts-blue", rating: 4, timestamp: "2h ago", review: null },
-  { id: "fa-2", avatar: "MJ", username: "maria_j", action: "reviewed", routeId: "sdmts-copper", rating: 5, timestamp: "4h ago", review: "The new Copper Line to UCSD is incredible. Ocean views from the elevated sections and the stations are gorgeous." },
-  { id: "fa-3", avatar: "TC", username: "transit_chad", action: "rode", routeId: "nctd-coaster", rating: 4, timestamp: "5h ago", review: null },
-  { id: "fa-4", avatar: "LP", username: "lily_park", action: "logged a milestone:", routeId: null, rating: null, timestamp: "6h ago", review: null, milestone: "50 rides completed" },
-  { id: "fa-5", avatar: "RD", username: "rail_dan", action: "reviewed", routeId: "sdmts-green", rating: 4, timestamp: "8h ago", review: "Green Line to Santee on a Sunday morning. Empty car, sun through the windows in Mission Valley. Peaceful." },
-  { id: "fa-6", avatar: "SN", username: "sophie_n", action: "rode", routeId: "amtrak-surfliner", rating: 5, timestamp: "12h ago", review: null },
-  { id: "fa-7", avatar: "JW", username: "jake_w", action: "logged a milestone:", routeId: null, rating: null, timestamp: "1d ago", review: null, milestone: "Rode all SD trolley lines" },
-  { id: "fa-8", avatar: "KM", username: "kira_m", action: "reviewed", routeId: "sdmts-blue", rating: 5, timestamp: "1d ago", review: "America Plaza to San Ysidro — riding to the border on light rail is a trip. Best cross-border transit in the US." },
-];
-
-// Sample community activity — shown as example content.
-// In production, this would come from the Supabase social feed.
-const popularReviews = [
-  { id: "tr-1", avatar: "NR", username: "nate_rides", routeId: "amtrak-surfliner", rating: 5, text: "San Diego to LA on the Surfliner hugging the Pacific coastline. Dolphins off San Clemente, surfers at San Onofre, cold craft beer from the cafe car — this is what American rail should be.", likes: 42, timestamp: "3d ago" },
-  { id: "tr-2", avatar: "EL", username: "ella_lines", routeId: "sdmts-copper", rating: 5, text: "The Copper Line through UTC is a revelation. From UCSD's Geisel Library to Old Town tacos in 20 minutes. San Diego finally connects the coast to the campus.", likes: 28, timestamp: "5d ago" },
-  { id: "tr-3", avatar: "PW", username: "pete_westbound", routeId: "sdmts-blue", rating: 4, text: "Blue Line from downtown to the border at 7am. The car fills up with commuters heading south, empties, fills again going north. The trolley is an international experience.", likes: 19, timestamp: "1w ago" },
-];
-
 /* ─── main page ─── */
 
 export default function DashboardPage() {
@@ -272,6 +268,45 @@ export default function DashboardPage() {
 
   // Combined ridden count: routes that are quick-marked OR fully logged
   const allRiddenCount = new Set([...loggedRouteIds, ...riddenRouteIds]).size;
+
+  // ── Community feed from Supabase ──
+  const [friendActivity, setFriendActivity] = useState<Array<{
+    id: string;
+    routeId: string;
+    rating: number | null;
+    reviewText: string | null;
+    loggedAt: string;
+    user: { id: string; username: string; displayName: string; avatarUrl: string | null } | null;
+  }>>([]);
+  const [popularReviews, setPopularReviews] = useState<Array<{
+    id: string;
+    routeId: string;
+    rating: number;
+    text: string;
+    likeCount: number;
+    createdAt: string;
+    user: { id: string; username: string; displayName: string; avatarUrl: string | null } | null;
+  }>>([]);
+  const [loadingFeed, setLoadingFeed] = useState(true);
+
+  useEffect(() => {
+    async function loadFeed() {
+      try {
+        const supabase = createClient();
+        const [activity, reviews] = await Promise.all([
+          fetchPublicActivity(supabase, 15),
+          fetchPublicReviews(supabase, 10),
+        ]);
+        setFriendActivity(activity);
+        setPopularReviews(reviews);
+      } catch {
+        // Supabase unavailable (demo mode) — leave empty
+      } finally {
+        setLoadingFeed(false);
+      }
+    }
+    loadFeed();
+  }, []);
 
   const recentLogs = [...routeLogs]
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -357,88 +392,94 @@ export default function DashboardPage() {
               <SectionHeader>New from Friends</SectionHeader>
 
               <div className="flex flex-col">
-                {friendActivity.map((item) => {
-                  const route = item.routeId
-                    ? getRouteById(item.routeId)
-                    : null;
+                {friendActivity.length === 0 && !loadingFeed ? (
+                  <div className="text-center py-8">
+                    <div className="mx-auto mb-2 w-fit opacity-40">
+                      <RailboxdLogo size={28} animate={false} />
+                    </div>
+                    <p className="text-[11px]" style={{ color: "var(--rb-text-muted)" }}>
+                      No community activity yet. Follow other riders to see their activity here.
+                    </p>
+                  </div>
+                ) : (
+                  friendActivity.map((item) => {
+                    const route = item.routeId
+                      ? getRouteById(item.routeId)
+                      : null;
+                    const avatarLetter = (item.user?.displayName ?? "?")[0];
 
-                  return (
-                    <motion.div
-                      key={item.id}
-                      variants={fadeUp}
-                      className="flex gap-3 py-3 border-b border-[var(--rb-border)]/60 last:border-b-0 group"
-                    >
-                      {/* Avatar */}
-                      <Link
-                        href="#"
-                        className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold hover:ring-1 hover:ring-[var(--rb-accent)] transition-all"
-                        style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
+                    return (
+                      <motion.div
+                        key={item.id}
+                        variants={fadeUp}
+                        className="flex gap-3 py-3 border-b border-[var(--rb-border)]/60 last:border-b-0 group"
                       >
-                        {item.avatar}
-                      </Link>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] leading-snug">
-                          <Link
-                            href="#"
-                            className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
-                            style={{ color: "var(--rb-text-bright)" }}
-                          >
-                            {item.username}
-                          </Link>{" "}
-                          <span style={{ color: "var(--rb-text-muted)" }}>{item.action}</span>{" "}
-                          {route && (
-                            <Link
-                              href={`/route/${route.id}`}
-                              className="font-semibold hover:text-[var(--rb-text-bright)] transition-colors"
-                              style={{ color: "var(--rb-text)" }}
-                            >
-                              {route.short_name} Line
-                            </Link>
-                          )}
-                          {(item as { milestone?: string }).milestone && (
-                            <span
-                              style={{ color: "var(--rb-accent)" }}
-                              className="font-semibold"
-                            >
-                              {(item as { milestone?: string }).milestone}
-                            </span>
-                          )}
-                        </p>
-
-                        {item.rating && (
-                          <div className="mt-1">
-                            <StarRating rating={item.rating} size={11} />
-                          </div>
-                        )}
-
-                        {item.review && (
-                          <p
-                            className="text-xs mt-1 leading-relaxed line-clamp-2"
-                            style={{ color: "var(--rb-text-muted)" }}
-                          >
-                            {item.review}
-                          </p>
-                        )}
-
-                        <span
-                          className="text-[10px] mt-1 block"
-                          style={{ color: "var(--rb-text-dim)" }}
+                        {/* Avatar */}
+                        <Link
+                          href={`/profile/${item.user?.username ?? "anon"}`}
+                          className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold hover:ring-1 hover:ring-[var(--rb-accent)] transition-all"
+                          style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
                         >
-                          {item.timestamp}
-                        </span>
-                      </div>
-
-                      {/* Route photo thumbnail */}
-                      {route && (
-                        <Link href={`/route/${route.id}`} className="shrink-0">
-                          <MiniPhotoCard route={route} />
+                          {avatarLetter}
                         </Link>
-                      )}
-                    </motion.div>
-                  );
-                })}
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] leading-snug">
+                            <Link
+                              href={`/profile/${item.user?.username ?? "anon"}`}
+                              className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
+                              style={{ color: "var(--rb-text-bright)" }}
+                            >
+                              {item.user?.username ?? "anon"}
+                            </Link>{" "}
+                            <span style={{ color: "var(--rb-text-muted)" }}>
+                              {item.reviewText ? "reviewed" : "rode"}
+                            </span>{" "}
+                            {route && (
+                              <Link
+                                href={`/route/${route.id}`}
+                                className="font-semibold hover:text-[var(--rb-text-bright)] transition-colors"
+                                style={{ color: "var(--rb-text)" }}
+                              >
+                                {route.short_name} Line
+                              </Link>
+                            )}
+                          </p>
+
+                          {item.rating && (
+                            <div className="mt-1">
+                              <StarRating rating={item.rating} size={11} />
+                            </div>
+                          )}
+
+                          {item.reviewText && (
+                            <p
+                              className="text-xs mt-1 leading-relaxed line-clamp-2"
+                              style={{ color: "var(--rb-text-muted)" }}
+                            >
+                              {item.reviewText}
+                            </p>
+                          )}
+
+                          <span
+                            className="text-[10px] mt-1 block"
+                            style={{ color: "var(--rb-text-dim)" }}
+                          >
+                            {relativeTime(item.loggedAt)}
+                          </span>
+                        </div>
+
+                        {/* Route photo thumbnail */}
+                        {route && (
+                          <Link href={`/route/${route.id}`} className="shrink-0">
+                            <MiniPhotoCard route={route} />
+                          </Link>
+                        )}
+                      </motion.div>
+                    );
+                  })
+                )}
               </div>
             </motion.section>
 
@@ -452,75 +493,90 @@ export default function DashboardPage() {
               <SectionHeader>Popular Reviews This Week</SectionHeader>
 
               <div className="flex flex-col gap-4">
-                {popularReviews.map((review) => {
-                  const route = getRouteById(review.routeId);
+                {popularReviews.length === 0 && !loadingFeed ? (
+                  <div className="text-center py-8">
+                    <div className="mx-auto mb-2 w-fit opacity-40">
+                      <RailboxdLogo size={28} animate={false} />
+                    </div>
+                    <p className="text-[11px]" style={{ color: "var(--rb-text-muted)" }}>
+                      No reviews yet. Be the first to review a route!
+                    </p>
+                  </div>
+                ) : (
+                  popularReviews.map((review) => {
+                    const route = getRouteById(review.routeId);
+                    const avatarLetter = (review.user?.displayName ?? "?")[0];
 
-                  return (
-                    <motion.div
-                      key={review.id}
-                      variants={fadeUp}
-                      className="flex gap-3"
-                    >
-                      {/* Route photo poster */}
-                      {route && (
-                        <Link href={`/route/${route.id}`} className="shrink-0">
-                          <MiniPhotoCard route={route} className="w-[50px]" />
-                        </Link>
-                      )}
+                    return (
+                      <motion.div
+                        key={review.id}
+                        variants={fadeUp}
+                        className="flex gap-3"
+                      >
+                        {/* Route photo poster */}
+                        {route && (
+                          <Link href={`/route/${route.id}`} className="shrink-0">
+                            <MiniPhotoCard route={route} className="w-[50px]" />
+                          </Link>
+                        )}
 
-                      {/* Review content */}
-                      <div className="flex-1 min-w-0 border-b border-[var(--rb-border)]/60 pb-4">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div>
-                            {route && (
-                              <Link
-                                href={`/route/${route.id}`}
-                                className="text-[13px] font-bold hover:text-[var(--rb-accent)] transition-colors"
-                                style={{ color: "var(--rb-text-bright)" }}
-                              >
-                                {route.long_name}
-                              </Link>
-                            )}
+                        {/* Review content */}
+                        <div className="flex-1 min-w-0 border-b border-[var(--rb-border)]/60 pb-4">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <div>
+                              {route && (
+                                <Link
+                                  href={`/route/${route.id}`}
+                                  className="text-[13px] font-bold hover:text-[var(--rb-accent)] transition-colors"
+                                  style={{ color: "var(--rb-text-bright)" }}
+                                >
+                                  {route.long_name}
+                                </Link>
+                              )}
+                            </div>
+                            <StarRating rating={review.rating} size={11} />
                           </div>
-                          <StarRating rating={review.rating} size={11} />
-                        </div>
 
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <span
-                            className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold"
-                            style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
-                          >
-                            {review.avatar}
-                          </span>
-                          <span className="text-xs" style={{ color: "var(--rb-text)" }}>
-                            Review by{" "}
-                            <Link
-                              href="#"
-                              className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
-                              style={{ color: "var(--rb-text)" }}
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold"
+                              style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
                             >
-                              {review.username}
-                            </Link>
-                          </span>
-                        </div>
+                              {avatarLetter}
+                            </span>
+                            <span className="text-xs" style={{ color: "var(--rb-text)" }}>
+                              Review by{" "}
+                              <Link
+                                href={`/profile/${review.user?.username ?? "anon"}`}
+                                className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
+                                style={{ color: "var(--rb-text)" }}
+                              >
+                                {review.user?.username ?? "anon"}
+                              </Link>
+                            </span>
+                            <span className="text-[10px] ml-auto" style={{ color: "var(--rb-text-dim)" }}>
+                              {relativeTime(review.createdAt)}
+                            </span>
+                          </div>
 
-                        <p
-                          className="text-[13px] leading-relaxed line-clamp-3"
-                          style={{ color: "var(--rb-text)" }}
-                        >
-                          {review.text}
-                        </p>
+                          <p
+                            className="text-[13px] leading-relaxed line-clamp-3"
+                            style={{ color: "var(--rb-text)" }}
+                          >
+                            {review.text}
+                          </p>
 
-                        <div className="flex items-center gap-1 mt-2">
-                          <Heart className="w-3 h-3" style={{ color: "var(--rb-text-dim)" }} />
-                          <span className="text-[10px]" style={{ color: "var(--rb-text-dim)" }}>
-                            {review.likes} likes
-                          </span>
+                          <div className="flex items-center gap-1 mt-2">
+                            <Heart className="w-3 h-3" style={{ color: "var(--rb-text-dim)" }} />
+                            <span className="text-[10px]" style={{ color: "var(--rb-text-dim)" }}>
+                              {review.likeCount} likes
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                      </motion.div>
+                    );
+                  })
+                )}
               </div>
             </motion.section>
           </div>

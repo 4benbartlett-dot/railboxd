@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -9,7 +9,7 @@ import {
   Train, Star, ArrowLeft, Heart, Bookmark, BookOpen, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useAppStore, type Review } from "@/stores/app-store";
+import { useAppStore } from "@/stores/app-store";
 import { useHeroPhoto } from "@/hooks/use-place-photos";
 import {
   getRouteById,
@@ -20,42 +20,12 @@ import {
 import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 import { RiddenToggle } from "@/components/log/ridden-toggle";
 import { getTransitInfo } from "@/lib/transit-history-data";
+import { createClient } from "@/lib/supabase/client";
+import { fetchRouteReviews, fetchRouteStats } from "@/lib/supabase/api";
 
 const MODE_LABELS: Record<number, string> = {
   0: "Tram", 1: "Heavy Rail", 2: "Commuter Rail", 3: "Bus", 4: "Ferry",
 };
-
-// Sample reviews — shown as example content.
-// In production, reviews would come from Supabase route_logs table.
-const MOCK_REVIEWS = [
-  {
-    id: "r1",
-    username: "transitnerd",
-    avatarColor: "#e54065",
-    rating: 5,
-    text: "Easily one of BART's finest. Beautiful views through the East Bay hills. Comfortable and reliable, though rush hour at Embarcadero tests your patience.",
-    date: "Feb 14",
-    likes: 23,
-  },
-  {
-    id: "r2",
-    username: "sfcommuter",
-    avatarColor: "#40bcf4",
-    rating: 3,
-    text: "Gets the job done. Stations are clean but trains are showing their age. Excited for the new fleet.",
-    date: "Jan 28",
-    likes: 8,
-  },
-  {
-    id: "r3",
-    username: "bayarea_rides",
-    avatarColor: "#00e054",
-    rating: 5,
-    text: "My daily ride and I genuinely love it. Something meditative about the East Bay stretch at golden hour.",
-    date: "Jan 15",
-    likes: 15,
-  },
-];
 
 type Tab = "stations" | "details" | "reviews";
 
@@ -67,17 +37,9 @@ function textColor(bg: string) {
   return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? "#0a0c0f" : "#ffffff";
 }
 
-/** Compute rating distribution from mock + user reviews for a given route */
-function computeRatingDist(
-  mockReviews: typeof MOCK_REVIEWS,
-  userReviews: Review[],
-) {
+function computeRatingDist(reviews: Array<{ rating: number }>) {
   const counts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  for (const r of mockReviews) {
-    const s = Math.min(5, Math.max(1, Math.round(r.rating)));
-    counts[s] = (counts[s] ?? 0) + 1;
-  }
-  for (const r of userReviews) {
+  for (const r of reviews) {
     const s = Math.min(5, Math.max(1, Math.round(r.rating)));
     counts[s] = (counts[s] ?? 0) + 1;
   }
@@ -118,6 +80,34 @@ export default function RouteDetailPage() {
   // Store: profile (for review author name)
   const profile = useAppStore((s) => s.profile);
 
+  const [communityReviews, setCommunityReviews] = useState<Array<{
+    id: string;
+    routeId: string;
+    rating: number;
+    text: string;
+    likeCount: number;
+    createdAt: string;
+    user: { id: string; username: string; displayName: string; avatarUrl: string | null } | null;
+  }>>([]);
+  const [routeStats, setRouteStats] = useState({ totalRiders: 0, totalFavorites: 0, totalBucketList: 0 });
+
+  useEffect(() => {
+    async function loadRouteData() {
+      try {
+        const supabase = createClient();
+        const [reviews, stats] = await Promise.all([
+          fetchRouteReviews(supabase, id),
+          fetchRouteStats(supabase, id),
+        ]);
+        setCommunityReviews(reviews);
+        setRouteStats(stats);
+      } catch {
+        // Supabase unavailable
+      }
+    }
+    loadRouteData();
+  }, [id]);
+
   const route = getRouteById(id);
   if (!route) {
     return (
@@ -153,16 +143,12 @@ export default function RouteDetailPage() {
     : route.long_name;
   const { heroUrl } = useHeroPhoto(heroQuery, heroStation?.lat, heroStation?.lng);
 
-  // Computed rating distribution from mock + user reviews
-  const RATING_DIST = computeRatingDist(MOCK_REVIEWS, userReviewsForRoute);
-  const maxDist = Math.max(...RATING_DIST.map((r) => r.count), 1);
-  const totalRatings = RATING_DIST.reduce((s, r) => s + r.count, 0);
-
-  // All reviews for this route (user reviews first, then mock)
+  // All reviews for this route (user reviews first, then community)
   const allReviews = [
     ...userReviewsForRoute.map((r) => ({
       id: r.id,
       username: profile.username,
+      displayName: profile.displayName,
       avatarColor: "#00e054",
       rating: r.rating,
       text: r.text,
@@ -170,8 +156,23 @@ export default function RouteDetailPage() {
       likes: r.likes,
       isUserReview: true as const,
     })),
-    ...MOCK_REVIEWS.map((r) => ({ ...r, isUserReview: false as const })),
+    ...communityReviews.map((r) => ({
+      id: r.id,
+      username: r.user?.username ?? "anon",
+      displayName: r.user?.displayName ?? "Anonymous",
+      avatarColor: "#40bcf4",
+      rating: r.rating,
+      text: r.text,
+      date: r.createdAt?.split("T")[0] ?? "",
+      likes: r.likeCount,
+      isUserReview: false as const,
+    })),
   ];
+
+  // Computed rating distribution from community + user reviews
+  const RATING_DIST = computeRatingDist(allReviews);
+  const maxDist = Math.max(...RATING_DIST.map((r) => r.count), 1);
+  const totalRatings = RATING_DIST.reduce((s, r) => s + r.count, 0);
 
   // Compute community average rating from all reviews
   const communityAvg = allReviews.length > 0
@@ -370,6 +371,11 @@ export default function RouteDetailPage() {
             <p className="text-sm italic text-[var(--rb-text-muted)] mt-3 lg:mt-4">
               Connecting {first} to {last}
             </p>
+            {route.description && (
+              <p className="text-[13px] text-[var(--rb-text)] leading-relaxed mt-2">
+                {route.description}
+              </p>
+            )}
 
             {/* Mobile actions */}
             <div className="flex lg:hidden items-center gap-2 mt-4">
@@ -578,9 +584,9 @@ export default function RouteDetailPage() {
             {/* Mobile: stats + histogram inline */}
             <div className="lg:hidden mt-8">
               <div className="flex items-baseline gap-6 text-xs text-[var(--rb-text-muted)] uppercase tracking-wider mb-4">
-                <div><span className="text-lg font-bold text-white block leading-none">293</span>Riders</div>
-                <div><span className="text-lg font-bold text-white block leading-none">48</span>Fans</div>
-                <div><span className="text-lg font-bold text-white block leading-none">15</span>Lists</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{routeStats.totalRiders}</span>Riders</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{routeStats.totalFavorites}</span>Fans</div>
+                <div><span className="text-lg font-bold text-white block leading-none">{routeStats.totalBucketList}</span>Lists</div>
               </div>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl font-bold text-white">{communityAvg > 0 ? communityAvg.toFixed(1) : "---"}</span>
@@ -608,9 +614,9 @@ export default function RouteDetailPage() {
           <div className="hidden lg:block w-[240px] flex-shrink-0 pt-1">
             <div className="mb-6">
               <div className="flex items-baseline gap-5 text-[11px] text-[var(--rb-text-muted)] uppercase tracking-wider">
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">293</span>Riders</div>
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">48</span>Fans</div>
-                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">15</span>Lists</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{routeStats.totalRiders}</span>Riders</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{routeStats.totalFavorites}</span>Fans</div>
+                <div><span className="text-lg font-bold text-white block leading-none mb-0.5">{routeStats.totalBucketList}</span>Lists</div>
               </div>
             </div>
 

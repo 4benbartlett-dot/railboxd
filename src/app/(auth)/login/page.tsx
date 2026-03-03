@@ -183,12 +183,23 @@ export default function LoginPage() {
               Remember me
             </span>
           </label>
-          <a
-            href="#"
+          <button
+            type="button"
+            onClick={async () => {
+              if (!email) { setError("Enter your email first, then click Forgot password."); return; }
+              setError(null);
+              const { createClient: makeSB } = await import("@/lib/supabase/client");
+              const sb = makeSB();
+              const { error: resetErr } = await sb.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/settings`,
+              });
+              if (resetErr) setError(resetErr.message);
+              else setError("Password reset email sent! Check your inbox.");
+            }}
             className="text-xs text-[var(--rb-text-muted)] hover:text-[var(--rb-accent)] transition-colors"
           >
             Forgot password?
-          </a>
+          </button>
         </motion.div>
 
         {/* Sign in button */}
