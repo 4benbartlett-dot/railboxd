@@ -94,7 +94,7 @@ export default function SearchPage() {
               className="px-4 py-1.5 rounded-full text-xs font-medium capitalize transition-colors"
               style={{
                 background: activeTab === tab ? "var(--rb-accent)" : "var(--rb-bg-card)",
-                color: activeTab === tab ? "#fff" : "var(--rb-text-muted)",
+                color: activeTab === tab ? "var(--rb-text-bright)" : "var(--rb-text-muted)",
               }}
             >
               {tab === "all" ? "All" : tab === "routes" ? "Routes" : "Stations"}
@@ -215,7 +215,7 @@ function RouteCard({ route, isLogged }: { route: typeof demoRoutes[number]; isLo
         <div className="flex items-center gap-2">
           <span
             className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-            style={{ background: route.route_color, color: "#fff" }}
+            style={{ background: route.route_color, color: "var(--rb-text-bright)" }}
           >
             {route.short_name}
           </span>
@@ -230,7 +230,7 @@ function RouteCard({ route, isLogged }: { route: typeof demoRoutes[number]; isLo
       {isLogged && (
         <span
           className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0"
-          style={{ background: "var(--rb-accent)", color: "#fff" }}
+          style={{ background: "var(--rb-accent)", color: "var(--rb-text-bright)" }}
         >
           logged
         </span>
@@ -277,7 +277,7 @@ function StationCard({ station, isLogged }: { station: typeof demoStations[numbe
       {isLogged && (
         <span
           className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0"
-          style={{ background: "var(--rb-accent)", color: "#fff" }}
+          style={{ background: "var(--rb-accent)", color: "var(--rb-text-bright)" }}
         >
           logged
         </span>

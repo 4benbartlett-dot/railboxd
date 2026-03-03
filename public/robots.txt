@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /callback
+Disallow: /settings
+
+Sitemap: https://railboxd.com/sitemap.xml

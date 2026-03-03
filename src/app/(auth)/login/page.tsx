@@ -49,23 +49,25 @@ export default function LoginPage() {
       });
 
       if (error) {
-        // If Supabase not configured or auth fails, use demo mode
-        if (error.message.includes("fetch") || error.message.includes("URL")) {
-          // Supabase not configured - demo mode
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          router.push("/dashboard");
-          return;
+        // Distinguish auth errors from config errors
+        if (error.message.includes("Invalid login credentials")) {
+          setError("Invalid email or password. Please try again.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setError("Please confirm your email address before signing in.");
+        } else if (error.message.includes("fetch") || error.message.includes("URL") || error.message.includes("NetworkError")) {
+          setError("Unable to connect to the server. Please check your connection.");
+        } else {
+          setError(error.message);
         }
-        setError(error.message);
         setLoading(false);
         return;
       }
 
       router.push("/dashboard");
-    } catch {
-      // Network error = Supabase not configured, fall back to demo mode
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      router.push("/dashboard");
+    } catch (err) {
+      // Genuine network failure
+      setError("Network error. Please check your connection and try again.");
+      setLoading(false);
     }
   }
 

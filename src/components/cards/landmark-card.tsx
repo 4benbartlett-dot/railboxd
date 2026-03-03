@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useLazyPlacePhoto } from "@/hooks/use-lazy-place-photo";
@@ -31,7 +32,7 @@ export function LandmarkCard({ landmark, className = "" }: LandmarkCardProps) {
     : null;
 
   return (
-    <Link href={`/landmark/${landmark.id}`}>
+    <Link href={`/landmark/${landmark.id}`} aria-label={`View landmark: ${landmark.name}`}>
     <motion.div
       ref={ref}
       whileHover={{ scale: 1.02, y: -3 }}
@@ -41,11 +42,13 @@ export function LandmarkCard({ landmark, className = "" }: LandmarkCardProps) {
     >
       {/* Photo or fallback */}
       {heroUrl ? (
-        <img
+        <Image
           src={heroUrl}
-          alt={landmark.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          alt={`Photo of ${landmark.name}`}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
+          unoptimized
         />
       ) : (
         <div
@@ -68,7 +71,7 @@ export function LandmarkCard({ landmark, className = "" }: LandmarkCardProps) {
       {/* Type badge top-right */}
       <div
         className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-        style={{ background: typeColor, color: "#fff" }}
+        style={{ background: typeColor, color: "var(--rb-text-bright)" }}
       >
         {typeLabel}
       </div>

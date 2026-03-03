@@ -163,7 +163,7 @@ export default function ExplorePage() {
             className="px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors"
             style={{
               background: landmarkFilter === "all" ? "var(--rb-accent)" : "var(--rb-bg-card)",
-              color: landmarkFilter === "all" ? "#000" : "var(--rb-text-muted)",
+              color: landmarkFilter === "all" ? "#000000" : "var(--rb-text-muted)",
             }}
           >
             All
@@ -175,7 +175,7 @@ export default function ExplorePage() {
               className="px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-colors"
               style={{
                 background: landmarkFilter === type ? LANDMARK_TYPE_COLORS[type] : "var(--rb-bg-card)",
-                color: landmarkFilter === type ? "#fff" : "var(--rb-text-muted)",
+                color: landmarkFilter === type ? "var(--rb-text-bright)" : "var(--rb-text-muted)",
               }}
             >
               {LANDMARK_TYPE_LABELS[type]}
@@ -296,7 +296,7 @@ export default function ExplorePage() {
                         {route && (
                           <span
                             className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: route.route_color, color: "#fff" }}
+                            style={{ background: route.route_color, color: "var(--rb-text-bright)" }}
                           >
                             {route.short_name}
                           </span>

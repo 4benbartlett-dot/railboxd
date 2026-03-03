@@ -10,16 +10,11 @@ interface RailboxdLogoProps {
 
 export function RailboxdLogo({ size = 32, className = "", animate = true }: RailboxdLogoProps) {
   const s = size;
-  // Push everything up slightly so the train + tracks are visually centered
-  const trackY = s * 0.76;
-  const railGap = s * 0.07;
-  const tieWidth = s * 0.055;
-  const tieSpacing = s * 0.13;
 
   const Wrapper = animate ? motion.div : "div";
   const wrapperProps = animate
     ? {
-        whileHover: { scale: 1.08, rotate: -2 },
+        whileHover: { scale: 1.06, rotate: -1.5 },
         transition: { type: "spring" as const, stiffness: 400, damping: 15 },
       }
     : {};
@@ -27,115 +22,85 @@ export function RailboxdLogo({ size = 32, className = "", animate = true }: Rail
   return (
     <Wrapper
       {...wrapperProps}
-      className={`inline-flex items-center justify-center rounded-xl ${className}`}
+      className={`inline-flex items-center justify-center ${className}`}
       style={{
         width: s,
         height: s,
-        background: "linear-gradient(135deg, #00e054 0%, #00b844 100%)",
-        boxShadow: "0 2px 8px rgba(0,224,84,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
+        borderRadius: s * 0.22,
+        background: "linear-gradient(145deg, #00e054 0%, #00c847 50%, #00a83c 100%)",
+        boxShadow: `0 ${s * 0.04}px ${s * 0.2}px rgba(0,224,84,0.25), inset 0 ${s * 0.02}px 0 rgba(255,255,255,0.25)`,
       }}
     >
       <svg
-        width={s * 0.88}
-        height={s * 0.88}
-        viewBox={`0 0 ${s} ${s}`}
+        width={s * 0.7}
+        height={s * 0.7}
+        viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
-        {/* Train body - sleek modern shape, bigger */}
+        {/* Train body - bold modern front view */}
         <rect
-          x={s * 0.06}
-          y={s * 0.2}
-          width={s * 0.88}
-          height={s * 0.44}
-          rx={s * 0.13}
-          fill="rgba(0,0,0,0.85)"
+          x="22" y="12" width="56" height="62"
+          rx="14"
+          fill="rgba(0,0,0,0.82)"
         />
-        {/* Front nose taper */}
-        <path
-          d={`M${s * 0.82} ${s * 0.2} Q${s * 0.97} ${s * 0.2} ${s * 0.97} ${s * 0.35} L${s * 0.97} ${s * 0.49} Q${s * 0.97} ${s * 0.64} ${s * 0.82} ${s * 0.64} Z`}
-          fill="rgba(0,0,0,0.85)"
-        />
-        {/* Train windshield - bigger */}
+        {/* Roof cap */}
         <rect
-          x={s * 0.62}
-          y={s * 0.27}
-          width={s * 0.24}
-          height={s * 0.22}
-          rx={s * 0.045}
+          x="28" y="8" width="44" height="10"
+          rx="5"
+          fill="rgba(0,0,0,0.65)"
+        />
+        {/* Main windshield */}
+        <rect
+          x="30" y="22" width="40" height="22"
+          rx="6"
           fill="rgba(255,255,255,0.92)"
         />
-        {/* Train side windows */}
+        {/* Windshield divider */}
+        <line
+          x1="50" y1="22" x2="50" y2="44"
+          stroke="rgba(0,0,0,0.3)"
+          strokeWidth="1.5"
+        />
+        {/* Lower body accent stripe */}
         <rect
-          x={s * 0.14}
-          y={s * 0.29}
-          width={s * 0.14}
-          height={s * 0.16}
-          rx={s * 0.025}
-          fill="rgba(255,255,255,0.5)"
+          x="22" y="50" width="56" height="3"
+          fill="rgba(255,255,255,0.2)"
         />
+        {/* Left headlight */}
+        <circle cx="34" cy="62" r="5" fill="#FFE066" />
+        <circle cx="34" cy="62" r="7.5" fill="rgba(255,224,102,0.15)" />
+        {/* Right headlight */}
+        <circle cx="66" cy="62" r="5" fill="#FFE066" />
+        <circle cx="66" cy="62" r="7.5" fill="rgba(255,224,102,0.15)" />
+        {/* Bumper / coupler area */}
         <rect
-          x={s * 0.33}
-          y={s * 0.29}
-          width={s * 0.14}
-          height={s * 0.16}
-          rx={s * 0.025}
-          fill="rgba(255,255,255,0.5)"
-        />
-        {/* Accent stripe along body */}
-        <rect
-          x={s * 0.06}
-          y={s * 0.54}
-          width={s * 0.82}
-          height={s * 0.035}
-          rx={s * 0.01}
-          fill="rgba(255,255,255,0.15)"
-        />
-        {/* Headlight */}
-        <circle
-          cx={s * 0.93}
-          cy={s * 0.5}
-          r={s * 0.04}
-          fill="#FFE066"
-        />
-        {/* Headlight glow */}
-        <circle
-          cx={s * 0.93}
-          cy={s * 0.5}
-          r={s * 0.065}
-          fill="rgba(255,224,102,0.2)"
+          x="38" y="70" width="24" height="4"
+          rx="2"
+          fill="rgba(255,255,255,0.12)"
         />
         {/* Rails */}
-        <line
-          x1={s * 0.03}
-          y1={trackY - railGap}
-          x2={s * 0.97}
-          y2={trackY - railGap}
-          stroke="rgba(0,0,0,0.65)"
-          strokeWidth={s * 0.028}
-          strokeLinecap="round"
-        />
-        <line
-          x1={s * 0.03}
-          y1={trackY + railGap}
-          x2={s * 0.97}
-          y2={trackY + railGap}
-          stroke="rgba(0,0,0,0.65)"
-          strokeWidth={s * 0.028}
-          strokeLinecap="round"
-        />
+        <rect x="15" y="82" width="70" height="2.5" rx="1.25" fill="rgba(0,0,0,0.5)" />
+        <rect x="15" y="90" width="70" height="2.5" rx="1.25" fill="rgba(0,0,0,0.5)" />
         {/* Railroad ties */}
-        {Array.from({ length: 7 }).map((_, i) => (
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
           <rect
             key={i}
-            x={s * 0.06 + i * tieSpacing}
-            y={trackY - railGap - s * 0.025}
-            width={tieWidth}
-            height={railGap * 2 + s * 0.05}
-            rx={s * 0.008}
-            fill="rgba(0,0,0,0.35)"
+            x={20 + i * 9.5}
+            y="80"
+            width="4"
+            height="14"
+            rx="1"
+            fill="rgba(0,0,0,0.25)"
           />
         ))}
+        {/* Subtle highlight on body */}
+        <rect
+          x="24" y="14" width="52" height="2"
+          rx="1"
+          fill="rgba(255,255,255,0.1)"
+        />
       </svg>
     </Wrapper>
   );

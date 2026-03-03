@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useHeroPhoto } from "@/hooks/use-place-photos";
 import type { DemoRoute } from "@/lib/demo-data";
 import { getStationsForRoute } from "@/lib/demo-data";
@@ -22,22 +23,24 @@ export function MiniPhotoCard({ route, className = "" }: MiniPhotoCardProps) {
     firstStation?.lng
   );
 
-  const textColor =
-    route.route_color === "#FFD800" || route.route_color === "#FFFF33"
-      ? "#000"
-      : "#fff";
+  const isDarkText =
+    route.route_color === "#FFD800" || route.route_color === "#FFFF33";
+  const textColor = isDarkText ? "var(--rb-text-dim)" : "var(--rb-text-bright)";
 
   return (
     <div
       className={`w-[42px] aspect-[2/3] rounded-sm overflow-hidden shrink-0 ${className}`}
+      aria-label={`${route.short_name}: ${route.long_name}`}
     >
       {heroUrl ? (
         <div className="relative w-full h-full">
-          <img
+          <Image
             src={heroUrl.replace("maxwidth=800", "maxwidth=200")}
-            alt={route.short_name}
-            className="w-full h-full object-cover"
+            alt={`Thumbnail of ${route.short_name} ${route.long_name} route`}
+            fill
+            className="object-cover"
             loading="lazy"
+            unoptimized
           />
           <div className="absolute inset-0 photo-card-gradient" />
           <div className="absolute bottom-0.5 left-0 right-0 text-center">
