@@ -23,6 +23,24 @@ export interface Review {
   likes: number; // community like count (mock)
 }
 
+export interface LandmarkVisit {
+  id: string;
+  landmarkId: string;
+  date: string;
+  rating?: number;
+  notes?: string;
+  privacy?: "public" | "friends" | "private";
+}
+
+export interface LandmarkReview {
+  id: string;
+  landmarkId: string;
+  rating: number;
+  text: string;
+  date: string;
+  likes: number;
+}
+
 export interface UserProfile {
   displayName: string;
   username: string;
@@ -100,11 +118,33 @@ interface AppState {
   toggleLike: (reviewId: string) => void;
   isLiked: (reviewId: string) => boolean;
 
+  // Landmark visits
+  landmarkVisits: LandmarkVisit[];
+  addLandmarkVisit: (visit: LandmarkVisit) => void;
+  removeLandmarkVisit: (id: string) => void;
+  visitedLandmarkIds: Set<string>;
+
+  // Landmark reviews
+  landmarkReviews: LandmarkReview[];
+  addLandmarkReview: (review: LandmarkReview) => void;
+  removeLandmarkReview: (id: string) => void;
+
+  // Landmark favorites
+  landmarkFavorites: string[];
+  toggleLandmarkFavorite: (landmarkId: string) => void;
+  isLandmarkFavorited: (landmarkId: string) => boolean;
+
   // Log modal (triggered when user taps "Log this route")
   logModalOpen: boolean;
   logModalRouteId: string | null;
   openLogModal: (routeId: string) => void;
   closeLogModal: () => void;
+
+  // Landmark log modal
+  landmarkModalOpen: boolean;
+  landmarkModalId: string | null;
+  openLandmarkModal: (landmarkId: string) => void;
+  closeLandmarkModal: () => void;
 
   // UI
   activeTab: "dashboard" | "search" | "explore" | "profile";
@@ -182,10 +222,53 @@ export const useAppStore = create<AppState>()(
         })),
       isLiked: (reviewId) => get().likedReviews.includes(reviewId),
 
+      // Landmark visits
+      landmarkVisits: [],
+      visitedLandmarkIds: new Set<string>(),
+      addLandmarkVisit: (visit) =>
+        set((state) => {
+          const landmarkVisits = [...state.landmarkVisits, visit];
+          return {
+            landmarkVisits,
+            visitedLandmarkIds: new Set(landmarkVisits.map((v) => v.landmarkId)),
+          };
+        }),
+      removeLandmarkVisit: (id) =>
+        set((state) => {
+          const landmarkVisits = state.landmarkVisits.filter((v) => v.id !== id);
+          return {
+            landmarkVisits,
+            visitedLandmarkIds: new Set(landmarkVisits.map((v) => v.landmarkId)),
+          };
+        }),
+
+      // Landmark reviews
+      landmarkReviews: [],
+      addLandmarkReview: (review) =>
+        set((state) => ({ landmarkReviews: [...state.landmarkReviews, review] })),
+      removeLandmarkReview: (id) =>
+        set((state) => ({ landmarkReviews: state.landmarkReviews.filter((r) => r.id !== id) })),
+
+      // Landmark favorites
+      landmarkFavorites: [],
+      toggleLandmarkFavorite: (landmarkId) =>
+        set((state) => ({
+          landmarkFavorites: state.landmarkFavorites.includes(landmarkId)
+            ? state.landmarkFavorites.filter((id) => id !== landmarkId)
+            : [...state.landmarkFavorites, landmarkId],
+        })),
+      isLandmarkFavorited: (landmarkId) => get().landmarkFavorites.includes(landmarkId),
+
       logModalOpen: false,
       logModalRouteId: null,
       openLogModal: (routeId) => set({ logModalOpen: true, logModalRouteId: routeId }),
       closeLogModal: () => set({ logModalOpen: false, logModalRouteId: null }),
+
+      // Landmark modal
+      landmarkModalOpen: false,
+      landmarkModalId: null,
+      openLandmarkModal: (landmarkId) => set({ landmarkModalOpen: true, landmarkModalId: landmarkId }),
+      closeLandmarkModal: () => set({ landmarkModalOpen: false, landmarkModalId: null }),
 
       activeTab: "dashboard",
       setActiveTab: (tab) => set({ activeTab: tab }),
@@ -200,12 +283,16 @@ export const useAppStore = create<AppState>()(
         favorites: state.favorites,
         reviews: state.reviews,
         likedReviews: state.likedReviews,
+        landmarkVisits: state.landmarkVisits,
+        landmarkReviews: state.landmarkReviews,
+        landmarkFavorites: state.landmarkFavorites,
       }),
       // Rehydrate: rebuild derived sets from persisted logs
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.loggedRouteIds = deriveLoggedRouteIds(state.routeLogs);
           state.loggedStationIds = deriveLoggedStationIds(state.routeLogs);
+          state.visitedLandmarkIds = new Set((state.landmarkVisits ?? []).map((v) => v.landmarkId));
         }
       },
     }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Home, Search, Compass, User, Settings } from "lucide-react";
+import { RailboxdLogo } from "@/components/graphics/railboxd-logo";
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -23,9 +24,7 @@ export function Sidebar() {
     <aside className="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 border-r border-[var(--rb-border)] bg-[var(--rb-bg)]">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[var(--rb-border)]">
-        <div className="w-8 h-8 rounded-lg bg-[var(--rb-accent)] flex items-center justify-center">
-          <span className="text-sm font-black text-[var(--rb-bg)]">rb</span>
-        </div>
+        <RailboxdLogo size={32} />
         <span className="text-lg font-bold text-[var(--rb-text-bright)] tracking-tight">
           Railboxd
         </span>

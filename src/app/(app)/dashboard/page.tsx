@@ -25,6 +25,7 @@ import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 import { MiniPhotoCard } from "@/components/cards/mini-photo-card";
 import { useHeroPhoto } from "@/hooks/use-place-photos";
 import { getStationsForRoute } from "@/lib/demo-data";
+import { RailboxdLogo } from "@/components/graphics/railboxd-logo";
 
 /* ─── animation variants ─── */
 
@@ -101,6 +102,7 @@ const heroRoutes = [
 
 function HeroBackdrop() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const profile = useAppStore((s) => s.profile);
   const route = heroRoutes[currentIndex];
   const agency = getAgencyById(route.agency_id);
   const stations = getStationsForRoute(route.id);
@@ -152,7 +154,7 @@ function HeroBackdrop() {
           <div className="max-w-[950px] mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-lg font-semibold text-white">
-                Welcome back, Explorer.
+                Welcome back, {profile.displayName.split(" ")[0]}.
               </h1>
               <p className="text-xs text-white/50 mt-0.5">
                 Here&apos;s what&apos;s happening on the rails.
@@ -160,10 +162,10 @@ function HeroBackdrop() {
             </div>
             <Link
               href="/search"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors bg-[var(--rb-accent)]/10 hover:bg-[var(--rb-accent)]/20 border border-[var(--rb-accent)]/30"
+              className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors bg-[var(--rb-accent)]/10 hover:bg-[var(--rb-accent)]/20 border border-[var(--rb-accent)]/30"
               style={{ color: "#00e054" }}
             >
-              <MapPin className="w-3 h-3" />
+              <RailboxdLogo size={18} animate={false} />
               Log a Ride
             </Link>
           </div>
@@ -246,6 +248,8 @@ const popularReviews = [
 export default function DashboardPage() {
   const routeLogs = useAppStore((s) => s.routeLogs);
   const loggedRouteIds = useAppStore((s) => s.loggedRouteIds);
+  const profile = useAppStore((s) => s.profile);
+  const landmarkVisits = useAppStore((s) => s.landmarkVisits);
 
   const recentLogs = [...routeLogs]
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -542,6 +546,8 @@ export default function DashboardPage() {
                 {[
                   { label: "Routes", value: loggedRouteIds.size, icon: Route },
                   { label: "Rides", value: routeLogs.length, icon: Train },
+                  { label: "Landmarks", value: landmarkVisits.length, icon: Landmark },
+                  { label: "Total", value: routeLogs.length + landmarkVisits.length, icon: Compass },
                 ].map((stat) => {
                   const Icon = stat.icon;
                   return (
@@ -595,7 +601,9 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <Train className="w-5 h-5 mx-auto mb-2" style={{ color: "#456" }} />
+                  <div className="mx-auto mb-2 w-fit opacity-40">
+                    <RailboxdLogo size={28} animate={false} />
+                  </div>
                   <p className="text-[11px]" style={{ color: "#678" }}>
                     No rides logged yet.
                   </p>

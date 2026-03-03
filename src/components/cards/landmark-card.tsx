@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useLazyPlacePhoto } from "@/hooks/use-lazy-place-photo";
@@ -30,6 +31,7 @@ export function LandmarkCard({ landmark, className = "" }: LandmarkCardProps) {
     : null;
 
   return (
+    <Link href={`/landmark/${landmark.id}`}>
     <motion.div
       ref={ref}
       whileHover={{ scale: 1.02, y: -3 }}
@@ -99,5 +101,6 @@ export function LandmarkCard({ landmark, className = "" }: LandmarkCardProps) {
         }}
       />
     </motion.div>
+    </Link>
   );
 }

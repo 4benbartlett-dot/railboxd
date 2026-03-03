@@ -75,3 +75,27 @@ body {
 .photo-card-gradient-strong {
   background: linear-gradient(to top, rgba(13,26,15,0.98) 0%, rgba(13,26,15,0.6) 50%, rgba(13,26,15,0.2) 80%);
 }
+
+/* Glow pulse animation for accent elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,224,84,0.15); }
+  50% { box-shadow: 0 0 20px rgba(0,224,84,0.35); }
+}
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(0,224,84,0.3);
+  color: #fff;
+}

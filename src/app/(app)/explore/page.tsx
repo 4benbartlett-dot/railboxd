@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Sparkles, Calendar, DollarSign, Landmark } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Calendar, DollarSign, Landmark, TrendingUp, Clock } from "lucide-react";
 import { SectionDivider } from "@/components/graphics/section-divider";
 import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 import { LandmarkCard } from "@/components/cards/landmark-card";
@@ -16,6 +16,21 @@ import {
 } from "@/lib/urbanist-data";
 import { getRouteById, demoRoutes } from "@/lib/demo-data";
 import { useAppStore } from "@/stores/app-store";
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5 } },
+};
 
 export default function ExplorePage() {
   const [landmarkFilter, setLandmarkFilter] = useState<LandmarkType | "all">("all");
@@ -64,28 +79,42 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen pb-24" style={{ background: "var(--rb-bg)" }}>
-      {/* Header */}
-      <div className="px-4 pt-6 pb-2">
+      {/* Header with animated entrance */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="px-4 pt-6 pb-2"
+      >
         <h1 className="text-2xl font-bold" style={{ color: "var(--rb-text-bright)" }}>
           Explore
         </h1>
         <p className="text-sm mt-1" style={{ color: "var(--rb-text-muted)" }}>
           Discover San Diego&rsquo;s transit world
         </p>
-      </div>
+      </motion.div>
 
       {/* ═══ Section 1: New on the Rails ═══ */}
-      <section className="mt-6 px-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Sparkles className="w-4 h-4" style={{ color: "var(--rb-new-badge)" }} />
+      <motion.section
+        variants={stagger}
+        initial="hidden"
+        animate="visible"
+        className="mt-6 px-4"
+      >
+        <motion.div variants={fadeUp} className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-4 h-4 float-animation" style={{ color: "var(--rb-new-badge)" }} />
           <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--rb-text-bright)" }}>
             New on the Rails
           </h2>
-        </div>
+        </motion.div>
 
         <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 scrollbar-hide">
-          {newRoutes.map(({ info, route }) => (
-            <div key={info.routeId} className="flex-shrink-0 w-[280px]">
+          {newRoutes.map(({ info, route }, idx) => (
+            <motion.div
+              key={info.routeId}
+              variants={fadeUp}
+              className="flex-shrink-0 w-[280px]"
+            >
               <PhotoRouteCard route={route!} size="lg" isNew />
               <div className="mt-2 px-1">
                 <div className="flex items-center gap-2 text-[10px]" style={{ color: "var(--rb-text-muted)" }}>
@@ -102,20 +131,29 @@ export default function ExplorePage() {
                   {info.history}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       <SectionDivider color="var(--rb-new-badge)" dotCount={5} />
 
       {/* ═══ Section 2: Urbanist Landmarks ═══ */}
-      <section className="mt-2 px-4">
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5 }}
+        className="mt-2 px-4"
+      >
         <div className="flex items-center gap-2 mb-3">
           <Landmark className="w-4 h-4" style={{ color: "var(--rb-accent)" }} />
           <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--rb-text-bright)" }}>
             Urbanist Landmarks
           </h2>
+          <span className="text-[10px] px-2 py-0.5 rounded-full ml-auto" style={{ background: "var(--rb-bg-card)", color: "var(--rb-text-muted)" }}>
+            {allLandmarks.length} spots
+          </span>
         </div>
 
         {/* Filter chips */}
@@ -146,48 +184,83 @@ export default function ExplorePage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3">
-          {filteredLandmarks.map((landmark, idx) => (
-            <motion.div
-              key={landmark.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.03, duration: 0.3 }}
-            >
-              <LandmarkCard landmark={landmark} />
-            </motion.div>
-          ))}
-        </div>
-      </section>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={landmarkFilter}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-3"
+          >
+            {filteredLandmarks.map((landmark, idx) => (
+              <motion.div
+                key={landmark.id}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ delay: idx * 0.03, duration: 0.35, ease: "easeOut" }}
+              >
+                <LandmarkCard landmark={landmark} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      </motion.section>
 
       <SectionDivider />
 
       {/* ═══ Section 3: Trending Routes ═══ */}
-      <section className="mt-2 px-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--rb-text-bright)" }}>
-          Trending Routes
-        </h2>
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5 }}
+        className="mt-2 px-4"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="w-4 h-4" style={{ color: "var(--rb-accent)" }} />
+          <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--rb-text-bright)" }}>
+            Trending Routes
+          </h2>
+        </div>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-          {trendingRoutes.map((route) => (
-            <PhotoRouteCard key={route.id} route={route} size="md" />
+          {trendingRoutes.map((route, idx) => (
+            <motion.div
+              key={route.id}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.05, duration: 0.4 }}
+            >
+              <PhotoRouteCard route={route} size="md" />
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       <SectionDivider dotCount={7} />
 
       {/* ═══ Section 4: Transit History Timeline ═══ */}
-      <section className="mt-2 px-4">
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5 }}
+        className="mt-2 px-4"
+      >
         <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-4 h-4" style={{ color: "var(--rb-accent)" }} />
+          <Clock className="w-4 h-4" style={{ color: "var(--rb-accent)" }} />
           <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--rb-text-bright)" }}>
             San Diego Transit Timeline
           </h2>
         </div>
 
         <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-3 top-0 bottom-0 w-px" style={{ background: "var(--rb-border)" }} />
+          {/* Vertical line with gradient */}
+          <div
+            className="absolute left-3 top-0 bottom-0 w-px"
+            style={{ background: "linear-gradient(to bottom, var(--rb-accent)40, var(--rb-border), transparent)" }}
+          />
 
           <div className="space-y-0">
             {timeline.map((item, idx) => {
@@ -197,12 +270,18 @@ export default function ExplorePage() {
               const showYear = year !== prevYear;
 
               return (
-                <div key={item.routeId}>
+                <motion.div
+                  key={item.routeId}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-30px" }}
+                  transition={{ delay: 0.05, duration: 0.4 }}
+                >
                   {showYear && (
                     <div className="flex items-center gap-3 py-2">
                       <div
                         className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold z-10"
-                        style={{ background: "var(--rb-bg-elevated)", color: "var(--rb-accent)" }}
+                        style={{ background: "var(--rb-bg-elevated)", color: "var(--rb-accent)", border: "1.5px solid var(--rb-accent)" }}
                       >
                         {year.slice(2)}
                       </div>
@@ -211,7 +290,7 @@ export default function ExplorePage() {
                       </span>
                     </div>
                   )}
-                  <div className="flex gap-3 pl-10 py-2 group">
+                  <div className="flex gap-3 pl-10 py-2 group hover:bg-[var(--rb-bg-card)] rounded-lg transition-colors -ml-1 pl-11">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {route && (
@@ -222,7 +301,7 @@ export default function ExplorePage() {
                             {route.short_name}
                           </span>
                         )}
-                        <span className="text-xs font-medium truncate" style={{ color: "var(--rb-text-bright)" }}>
+                        <span className="text-xs font-medium truncate group-hover:text-[var(--rb-accent)] transition-colors" style={{ color: "var(--rb-text-bright)" }}>
                           {route?.long_name ?? item.routeId}
                         </span>
                         {item.isNew && (
@@ -252,12 +331,12 @@ export default function ExplorePage() {
                       )}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }

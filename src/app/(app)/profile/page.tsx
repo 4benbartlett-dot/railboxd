@@ -16,6 +16,7 @@ import {
   Heart,
   Eye,
   ChevronRight,
+  Landmark,
 } from "lucide-react";
 import { useAppStore, type RouteLog } from "@/stores/app-store";
 import {
@@ -25,6 +26,7 @@ import {
   demoRoutes,
 } from "@/lib/demo-data";
 import { PhotoRouteCard } from "@/components/cards/photo-route-card";
+import { RailboxdLogo } from "@/components/graphics/railboxd-logo";
 
 /* ─────────────────────────────────────────────
    Letterboxd-style raw hex palette
@@ -290,7 +292,9 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
   if (routeLogs.length === 0) {
     return (
       <div className="text-center py-16 text-[#678]">
-        <BarChart3 className="w-10 h-10 mx-auto mb-3 text-[#456]" />
+        <div className="mx-auto mb-3 w-fit opacity-40">
+          <RailboxdLogo size={40} animate={false} />
+        </div>
         <p className="text-sm">No data to analyze yet.</p>
       </div>
     );
@@ -459,7 +463,9 @@ function BucketListTab({ bucketList }: { bucketList: string[] }) {
   if (bucketRoutes.length === 0) {
     return (
       <div className="text-center py-16">
-        <Bookmark className="w-10 h-10 mx-auto mb-3 text-[#456]" />
+        <div className="mx-auto mb-3 w-fit opacity-40">
+          <RailboxdLogo size={40} animate={false} />
+        </div>
         <p className="text-[#678] text-sm mb-1">Your watchlist is empty</p>
         <p className="text-[#456] text-xs max-w-xs mx-auto mb-4">
           Bookmark routes you want to ride from route detail pages.
@@ -469,7 +475,7 @@ function BucketListTab({ bucketList }: { bucketList: string[] }) {
           className="inline-flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-colors hover:brightness-110"
           style={{ background: "#00e054", color: "var(--rb-bg)" }}
         >
-          <Train className="w-4 h-4" />
+          <RailboxdLogo size={16} animate={false} />
           Browse Routes
         </Link>
       </div>
@@ -526,6 +532,7 @@ export default function ProfilePage() {
   const loggedStationIds = useAppStore((s) => s.loggedStationIds);
   const profile = useAppStore((s) => s.profile);
   const bucketList = useAppStore((s) => s.bucketList);
+  const visitedLandmarkIds = useAppStore((s) => s.visitedLandmarkIds);
 
   const sortedLogs = useMemo(
     () => [...routeLogs].sort((a, b) => b.date.localeCompare(a.date)),
@@ -670,13 +677,7 @@ export default function ProfilePage() {
           {[
             { label: "Routes", value: loggedRouteIds.size },
             { label: "Stations", value: loggedStationIds.size },
-            {
-              label: "This Year",
-              value: routeLogs.filter((l) => {
-                const y = new Date(l.date + "T12:00:00").getFullYear();
-                return y === new Date().getFullYear();
-              }).length,
-            },
+            { label: "Landmarks", value: visitedLandmarkIds.size },
             { label: "Rides", value: routeLogs.length },
             { label: "Watchlist", value: bucketList.length },
           ].map((stat) => (
@@ -765,8 +766,8 @@ export default function ProfilePage() {
             >
               {isEmpty ? (
                 <div className="text-center py-16">
-                  <div className="w-14 h-14 rounded-full bg-[var(--rb-bg-card)] flex items-center justify-center mx-auto mb-4">
-                    <Route className="w-7 h-7 text-[#456]" />
+                  <div className="mx-auto mb-4 w-fit opacity-50">
+                    <RailboxdLogo size={48} animate={false} />
                   </div>
                   <p className="text-[#678] text-sm mb-1">
                     Your diary is empty
@@ -779,7 +780,7 @@ export default function ProfilePage() {
                     className="inline-flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-colors hover:brightness-110"
                     style={{ background: "#00e054", color: "var(--rb-bg)" }}
                   >
-                    <Train className="w-4 h-4" />
+                    <RailboxdLogo size={16} animate={false} />
                     Browse Routes
                   </Link>
                 </div>

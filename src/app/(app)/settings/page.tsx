@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Mail,
 } from "lucide-react";
+import { RailboxdLogo } from "@/components/graphics/railboxd-logo";
 
 /* ─── animation variants ─── */
 const sectionVariants = {
@@ -297,6 +298,16 @@ export default function SettingsPage() {
   const [bio, setBio] = useState(profile.bio);
   const [homeCity, setHomeCity] = useState(profile.homeCity);
 
+  /* Sync local form state when Zustand rehydrates from localStorage.
+     Without this, useState captures the default values before
+     persist middleware has finished loading saved data. */
+  useEffect(() => {
+    setDisplayName(profile.displayName);
+    setUsername(profile.username);
+    setBio(profile.bio);
+    setHomeCity(profile.homeCity);
+  }, [profile.displayName, profile.username, profile.bio, profile.homeCity]);
+
   /* ── Avatar file handling ── */
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -326,7 +337,7 @@ export default function SettingsPage() {
         className="mb-8"
       >
         <div className="flex items-center gap-2.5">
-          <Settings className="w-5 h-5 text-[var(--rb-text-muted)]" />
+          <RailboxdLogo size={28} animate={false} />
           <h1 className="text-2xl font-bold text-[var(--rb-text-bright)] tracking-tight">
             Settings
           </h1>
