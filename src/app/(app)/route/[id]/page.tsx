@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
-  Train, Star, ArrowLeft, Heart, Bookmark, Eye,
+  Train, Star, ArrowLeft, Heart, Bookmark, Eye, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore, type Review } from "@/stores/app-store";
@@ -17,6 +17,8 @@ import {
   getAgencyById,
   demoRoutes,
 } from "@/lib/demo-data";
+import { PhotoRouteCard } from "@/components/cards/photo-route-card";
+import { getTransitInfo } from "@/lib/transit-history-data";
 
 const MODE_LABELS: Record<number, string> = {
   0: "Tram", 1: "Heavy Rail", 2: "Commuter Rail", 3: "Bus", 4: "Ferry",
@@ -139,6 +141,7 @@ export default function RouteDetailPage() {
   const first = stations[0]?.name ?? "Start";
   const last = stations[stations.length - 1]?.name ?? "End";
   const related = demoRoutes.filter((r) => r.id !== id).slice(0, 4);
+  const transitInfo = getTransitInfo(id);
 
   // Google Places photo for hero backdrop — search using route name + agency
   const heroStation = stations[0];
@@ -195,20 +198,27 @@ export default function RouteDetailPage() {
     toast("Review submitted!");
   }
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 400], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
+
   return (
     <div className="min-h-screen" style={{ background: "var(--rb-bg)" }}>
       {/* ── Cinematic Backdrop ── */}
-      <div className="relative w-full h-[220px] sm:h-[300px] lg:h-[380px] overflow-hidden">
-        {/* Real photo layer */}
+      <div ref={heroRef} className="relative w-full h-[220px] sm:h-[300px] lg:h-[380px] overflow-hidden">
+        {/* Real photo layer with parallax */}
         {heroUrl && (
-          <Image
-            src={heroUrl}
-            alt={route.long_name}
-            fill
-            className="object-cover"
-            priority
-            unoptimized
-          />
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
+            <Image
+              src={heroUrl}
+              alt={route.long_name}
+              fill
+              className="object-cover"
+              priority
+              unoptimized
+            />
+          </motion.div>
         )}
         {/* Gradient overlay (tints photo or standalone) */}
         <div className="absolute inset-0" style={{
@@ -429,12 +439,50 @@ export default function RouteDetailPage() {
 
               {tab === "details" && (
                 <motion.div key="d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3">
+                  {/* Transit history hero */}
+                  {transitInfo && (
+                    <div className="rounded-lg p-4 mb-4" style={{ background: "var(--rb-bg-card)" }}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {transitInfo.isNew && (
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase flex items-center gap-1"
+                            style={{ background: "var(--rb-new-badge)", color: "#000" }}>
+                            <Sparkles className="w-2.5 h-2.5" /> Recently Opened
+                          </span>
+                        )}
+                        <span className="text-[11px]" style={{ color: "var(--rb-text-muted)" }}>
+                          Opened {transitInfo.openedDate}
+                        </span>
+                      </div>
+                      <p className="text-sm leading-relaxed" style={{ color: "var(--rb-text)" }}>
+                        {transitInfo.history}
+                      </p>
+                      {transitInfo.fundingSource && (
+                        <div className="flex items-center gap-3 mt-3 text-[11px]" style={{ color: "var(--rb-text-muted)" }}>
+                          <span>{transitInfo.fundingAmount}</span>
+                          <span className="opacity-40">&middot;</span>
+                          <span>{transitInfo.fundingSource}</span>
+                        </div>
+                      )}
+                      {transitInfo.notableFeatures.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {transitInfo.notableFeatures.map((f) => (
+                            <span key={f} className="text-[10px] px-2 py-0.5 rounded-full"
+                              style={{ background: rc + "15", color: rc }}>
+                              {f}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <dl className="divide-y divide-[#2c3440]">
                     {[
                       ["Operator", agency?.name ?? "Unknown"],
                       ["Transit Mode", MODE_LABELS[route.route_type] ?? "Rail"],
                       ["Region", agency ? `${agency.city}, ${agency.state}` : "Unknown"],
                       ["Stations", `${stations.length} stops`],
+                      ...(transitInfo ? [["Opened", transitInfo.openedDate]] : []),
                       ["Route ID", route.id],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between py-3">
@@ -616,35 +664,9 @@ export default function RouteDetailPage() {
               Related Routes
             </h3>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {related.map((r) => {
-                const rtc = textColor(r.route_color ?? "#666");
-                const rLogged = loggedRouteIds.has(r.id);
-                return (
-                  <Link key={r.id} href={`/route/${r.id}`} className="flex-shrink-0 w-[110px] group">
-                    <div className="w-full aspect-[2/3] rounded shadow-lg relative overflow-hidden group-hover:ring-2 group-hover:ring-[#00e054] transition-all"
-                      style={{ backgroundColor: r.route_color ?? "#666" }}>
-                      <div className="absolute inset-0 opacity-[0.06]" style={{
-                        backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255,255,255,0.1) 6px, rgba(255,255,255,0.1) 12px)",
-                      }} />
-                      <div className="relative h-full flex flex-col items-center justify-center p-2">
-                        <Train className="w-4 h-4 mb-1 opacity-40" style={{ color: rtc }} />
-                        <div className="text-2xl font-black" style={{ color: rtc }}>{r.short_name}</div>
-                        <div className="text-[7px] mt-1 opacity-50 uppercase tracking-widest" style={{ color: rtc }}>
-                          {MODE_LABELS[r.route_type] ?? "Rail"}
-                        </div>
-                      </div>
-                      {rLogged && (
-                        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#00e054] flex items-center justify-center">
-                          <Eye className="w-2.5 h-2.5 text-[#0a0c0f]" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-[#9ab] mt-1.5 leading-snug line-clamp-2 group-hover:text-white transition-colors">
-                      {r.long_name}
-                    </p>
-                  </Link>
-                );
-              })}
+              {related.map((r) => (
+                <PhotoRouteCard key={r.id} route={r} size="sm" showActions={false} />
+              ))}
             </div>
           </div>
         )}

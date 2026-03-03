@@ -3,8 +3,9 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { Search, Train, MapPin, X } from "lucide-react";
-import { demoRoutes, demoStations, demoAgencies, getAgencyById } from "@/lib/demo-data";
+import { demoRoutes, demoStations, demoAgencies, getAgencyById, getStationsForRoute } from "@/lib/demo-data";
 import { useAppStore } from "@/stores/app-store";
+import { useLazyPlacePhoto } from "@/hooks/use-lazy-place-photo";
 
 type CategoryTab = "all" | "routes" | "stations";
 
@@ -184,6 +185,13 @@ export default function SearchPage() {
 
 function RouteCard({ route, isLogged }: { route: typeof demoRoutes[number]; isLogged: boolean }) {
   const agency = getAgencyById(route.agency_id);
+  const stations = getStationsForRoute(route.id);
+  const firstStation = stations[0];
+  const { ref, heroUrl } = useLazyPlacePhoto(
+    firstStation?.name,
+    firstStation?.lat,
+    firstStation?.lng
+  );
   return (
     <Link
       href={`/route/${route.id}`}
@@ -191,10 +199,17 @@ function RouteCard({ route, isLogged }: { route: typeof demoRoutes[number]; isLo
       style={{ background: "var(--rb-bg-card)" }}
     >
       <div
-        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+        ref={ref}
+        className="w-10 h-10 rounded-lg shrink-0 relative overflow-hidden"
         style={{ background: route.route_color + "22" }}
       >
-        <Train className="w-5 h-5" style={{ color: route.route_color }} />
+        {heroUrl ? (
+          <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Train className="w-5 h-5" style={{ color: route.route_color }} />
+          </div>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
@@ -226,6 +241,11 @@ function RouteCard({ route, isLogged }: { route: typeof demoRoutes[number]; isLo
 
 function StationCard({ station, isLogged }: { station: typeof demoStations[number]; isLogged: boolean }) {
   const agency = getAgencyById(station.agency_id);
+  const { ref, heroUrl } = useLazyPlacePhoto(
+    station.name,
+    station.lat,
+    station.lng
+  );
   return (
     <Link
       href={`/station/${station.id}`}
@@ -233,10 +253,17 @@ function StationCard({ station, isLogged }: { station: typeof demoStations[numbe
       style={{ background: "var(--rb-bg-card)" }}
     >
       <div
-        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+        ref={ref}
+        className="w-10 h-10 rounded-lg shrink-0 relative overflow-hidden"
         style={{ background: "var(--rb-accent)" + "22" }}
       >
-        <MapPin className="w-5 h-5" style={{ color: "var(--rb-accent)" }} />
+        {heroUrl ? (
+          <img src={heroUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <MapPin className="w-5 h-5" style={{ color: "var(--rb-accent)" }} />
+          </div>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate" style={{ color: "var(--rb-text-bright)" }}>

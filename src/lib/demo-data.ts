@@ -1,8 +1,5 @@
-// Demo transit data — All major California rail systems
-// Allows map and UI to work without Supabase/Transitland
-
-import { norcalRoutes, norcalStations } from "./_norcal-data";
-import { socalRoutes, socalStations } from "./_socal-data";
+// Demo transit data — San Diego focused
+// MTS Trolley, NCTD Coaster/Sprinter, Pacific Surfliner, MTS Bus Rapid Transit
 
 export interface DemoStation {
   id: string;
@@ -17,7 +14,7 @@ export interface DemoRoute {
   id: string;
   short_name: string;
   long_name: string;
-  route_type: number; // 0=light rail/tram, 1=heavy rail/subway, 2=commuter rail
+  route_type: number; // 0=light rail/tram, 1=heavy rail/subway, 2=commuter rail, 3=bus
   route_color: string;
   agency_id: string;
   station_ids: string[];
@@ -32,287 +29,354 @@ export interface DemoAgency {
 }
 
 export const demoAgencies: DemoAgency[] = [
-  { id: "bart",      name: "Bay Area Rapid Transit",          city: "Oakland",       state: "CA" },
-  { id: "lametro",   name: "LA Metro Rail",                   city: "Los Angeles",   state: "CA" },
-  { id: "caltrain",  name: "Caltrain",                        city: "San Francisco", state: "CA" },
-  { id: "muni",      name: "Muni Metro",                      city: "San Francisco", state: "CA" },
-  { id: "vta",       name: "VTA Light Rail",                   city: "San Jose",      state: "CA" },
-  { id: "smart",     name: "SMART",                            city: "San Rafael",    state: "CA" },
-  { id: "ace",       name: "ACE (Altamont Corridor Express)",  city: "Stockton",      state: "CA" },
-  { id: "sacrt",     name: "Sacramento RT",                    city: "Sacramento",    state: "CA" },
-  { id: "sdmts",     name: "San Diego MTS Trolley",            city: "San Diego",     state: "CA" },
-  { id: "metrolink", name: "Metrolink",                        city: "Los Angeles",   state: "CA" },
-  { id: "nctd",      name: "North County Transit District",    city: "Oceanside",     state: "CA" },
+  { id: "sdmts", name: "San Diego MTS Trolley", city: "San Diego", state: "CA" },
+  { id: "nctd", name: "North County Transit District", city: "Oceanside", state: "CA" },
+  { id: "amtrak", name: "Amtrak Pacific Surfliner", city: "San Diego", state: "CA" },
+  { id: "mts-bus", name: "MTS Rapid Bus", city: "San Diego", state: "CA" },
 ];
 
 // ===================== ROUTES =====================
 
-const baseRoutes: DemoRoute[] = [
-  // ── BART Yellow Line (Antioch → SFO/Millbrae) ──
-  {
-    id: "bart-yellow",
-    short_name: "Yellow",
-    long_name: "Antioch – SFO/Millbrae",
-    route_type: 1,
-    route_color: "#FFD800",
-    agency_id: "bart",
-    station_ids: [
-      "bart-antioch","bart-pittsburg","bart-concord","bart-pleasant-hill",
-      "bart-walnut-creek","bart-lafayette","bart-orinda","bart-rockridge",
-      "bart-macarthur","bart-19th-oak","bart-12th-oak","bart-west-oak",
-      "bart-embarcadero","bart-montgomery","bart-powell","bart-civic-center",
-      "bart-16th-mission","bart-24th-mission","bart-glen-park","bart-balboa",
-      "bart-daly-city","bart-colma","bart-south-sf","bart-san-bruno",
-      "bart-sfo","bart-millbrae",
-    ],
-    coordinates: [
-      [-121.7797,37.9953],[-121.9449,37.9974],[-122.0292,37.9738],
-      [-122.0568,37.9285],[-122.0676,37.9057],[-122.1235,37.8932],
-      [-122.1834,37.8784],[-122.2514,37.8440],[-122.2672,37.8287],
-      [-122.2681,37.8082],[-122.2716,37.8036],[-122.2947,37.8046],
-      [-122.3966,37.7928],[-122.4012,37.7886],[-122.4079,37.7844],
-      [-122.4140,37.7796],[-122.4193,37.7651],[-122.4183,37.7522],
-      [-122.4337,37.7329],[-122.4477,37.7218],[-122.4688,37.7062],
-      [-122.4660,37.6847],[-122.4442,37.6647],[-122.4116,37.6309],
-      [-122.3928,37.6161],[-122.3866,37.5996],
-    ],
-  },
-
-  // ── BART Red Line (Richmond → Daly City) ──
-  {
-    id: "bart-red",
-    short_name: "Red",
-    long_name: "Richmond – Daly City/Millbrae",
-    route_type: 1,
-    route_color: "#ED1C24",
-    agency_id: "bart",
-    station_ids: [
-      "bart-richmond","bart-el-cerrito-norte","bart-el-cerrito-plaza",
-      "bart-north-berkeley","bart-downtown-berkeley","bart-ashby",
-      "bart-macarthur","bart-19th-oak","bart-12th-oak","bart-west-oak",
-      "bart-embarcadero","bart-montgomery","bart-powell","bart-civic-center",
-      "bart-16th-mission","bart-24th-mission","bart-glen-park","bart-balboa",
-      "bart-daly-city",
-    ],
-    coordinates: [
-      [-122.3532,37.9372],[-122.3173,37.9254],[-122.2990,37.9017],
-      [-122.2832,37.8744],[-122.2679,37.8697],[-122.2699,37.8529],
-      [-122.2672,37.8287],[-122.2681,37.8082],[-122.2716,37.8036],
-      [-122.2947,37.8046],[-122.3966,37.7928],[-122.4012,37.7886],
-      [-122.4079,37.7844],[-122.4140,37.7796],[-122.4193,37.7651],
-      [-122.4183,37.7522],[-122.4337,37.7329],[-122.4477,37.7218],
-      [-122.4688,37.7062],
-    ],
-  },
-
-  // ── BART Blue Line (Dublin/Pleasanton → Daly City) ──
-  {
-    id: "bart-blue",
-    short_name: "Blue",
-    long_name: "Dublin/Pleasanton – Daly City",
-    route_type: 1,
-    route_color: "#0099CC",
-    agency_id: "bart",
-    station_ids: [
-      "bart-dublin","bart-west-dublin","bart-castro-valley","bart-bay-fair",
-      "bart-san-leandro","bart-fruitvale","bart-coliseum","bart-lake-merritt",
-      "bart-12th-oak","bart-19th-oak","bart-macarthur","bart-embarcadero",
-      "bart-montgomery","bart-powell","bart-civic-center","bart-16th-mission",
-      "bart-24th-mission","bart-glen-park","bart-balboa","bart-daly-city",
-    ],
-    coordinates: [
-      [-121.8990,37.7016],[-121.9282,37.6994],[-122.0768,37.6939],
-      [-122.1270,37.6993],[-122.1604,37.7027],[-122.2242,37.7748],
-      [-122.1982,37.7540],[-122.2651,37.7978],[-122.2716,37.8036],
-      [-122.2681,37.8082],[-122.2672,37.8287],[-122.3966,37.7928],
-      [-122.4012,37.7886],[-122.4079,37.7844],[-122.4140,37.7796],
-      [-122.4193,37.7651],[-122.4183,37.7522],[-122.4337,37.7329],
-      [-122.4477,37.7218],[-122.4688,37.7062],
-    ],
-  },
-
-  // ── LA Metro B Line / Red (North Hollywood → Union Station) ──
-  {
-    id: "lametro-b",
-    short_name: "B",
-    long_name: "B Line (Red) – North Hollywood to Union Station",
-    route_type: 1,
-    route_color: "#EE1C23",
-    agency_id: "lametro",
-    station_ids: [
-      "la-north-hollywood","la-universal","la-highland","la-vine",
-      "la-western","la-vermont-sunset","la-vermont-beverly","la-wilshire-vermont",
-      "la-macarthur-park","la-7th-metro","la-pershing","la-civic-center-la",
-      "la-union-station",
-    ],
-    coordinates: [
-      [-118.3768,34.1688],[-118.3510,34.1413],[-118.3386,34.1019],
-      [-118.3255,34.1011],[-118.3147,34.1008],[-118.2920,34.0999],
-      [-118.2920,34.0750],[-118.2921,34.0632],[-118.2764,34.0585],
-      [-118.2588,34.0487],[-118.2517,34.0488],[-118.2433,34.0557],
-      [-118.2342,34.0560],
-    ],
-  },
-
-  // ── LA Metro A Line / Blue (Long Beach → 7th St) ──
-  {
-    id: "lametro-a",
-    short_name: "A",
-    long_name: "A Line (Blue) – Long Beach to 7th St/Metro Center",
-    route_type: 1,
-    route_color: "#009BDE",
-    agency_id: "lametro",
-    station_ids: [
-      "la-downtown-lb","la-transit-mall","la-5th-st","la-1st-st",
-      "la-anaheim","la-pacific","la-del-amo","la-compton","la-artesia",
-      "la-redondo","la-slauson","la-florence","la-grand-ave",
-      "la-san-pedro","la-7th-metro",
-    ],
-    coordinates: [
-      [-118.1896,33.7701],[-118.1894,33.7759],[-118.1894,33.7806],
-      [-118.1894,33.7873],[-118.1894,33.7960],[-118.1895,33.8050],
-      [-118.2029,33.8440],[-118.2175,33.8966],[-118.2221,33.9148],
-      [-118.2454,33.9360],[-118.2528,34.0028],[-118.2583,33.9729],
-      [-118.2582,34.0362],[-118.2410,34.0406],[-118.2588,34.0487],
-    ],
-  },
-];
-
 export const demoRoutes: DemoRoute[] = [
-  ...baseRoutes,
-  ...(norcalRoutes as DemoRoute[]),
-  ...(socalRoutes as DemoRoute[]),
+  // ── MTS Trolley Blue Line (America Plaza → San Ysidro) ──
+  {
+    id: "sdmts-blue",
+    short_name: "Blue",
+    long_name: "America Plaza – San Ysidro",
+    route_type: 0,
+    route_color: "#0072BC",
+    agency_id: "sdmts",
+    station_ids: [
+      "sd-america-plaza","sd-county-center","sd-civic-center","sd-5th-ave",
+      "sd-city-college","sd-12th-imperial","sd-barrio-logan","sd-harborside",
+      "sd-pacific-fleet","sd-24th-st","sd-bayfront-e-st","sd-h-st",
+      "sd-palomar-st","sd-palm-ave","sd-iris-ave","sd-beyer-blvd","sd-san-ysidro",
+    ],
+    coordinates: [
+      [-117.1690,32.7193],[-117.1668,32.7173],[-117.1640,32.7150],
+      [-117.1610,32.7138],[-117.1595,32.7199],[-117.1544,32.7061],
+      [-117.1434,32.6996],[-117.1360,32.6905],[-117.1252,32.6831],
+      [-117.1130,32.6758],[-117.1049,32.6600],[-117.0990,32.6477],
+      [-117.0915,32.6303],[-117.0865,32.6164],[-117.0832,32.6065],
+      [-117.0617,32.5772],[-117.0416,32.5484],
+    ],
+  },
+  // ── MTS Trolley Orange Line (Courthouse → El Cajon) ──
+  {
+    id: "sdmts-orange",
+    short_name: "Orange",
+    long_name: "Courthouse – El Cajon Transit Center",
+    route_type: 0,
+    route_color: "#F7931E",
+    agency_id: "sdmts",
+    station_ids: [
+      "sd-courthouse","sd-santa-fe","sd-seaport-village","sd-convention-center",
+      "sd-gaslamp","sd-12th-imperial","sd-park-blvd","sd-city-heights",
+      "sd-fairmount","sd-47th-st","sd-euclid","sd-encanto","sd-lemon-grove",
+      "sd-massachusetts","sd-grossmont","sd-la-mesa","sd-amaya","sd-el-cajon",
+    ],
+    coordinates: [
+      [-117.1710,32.7188],[-117.1705,32.7236],[-117.1685,32.7098],
+      [-117.1645,32.7078],[-117.1601,32.7119],[-117.1544,32.7061],
+      [-117.1467,32.7073],[-117.1103,32.7197],[-117.0917,32.7244],
+      [-117.0850,32.7274],[-117.0678,32.7300],[-117.0481,32.7181],
+      [-117.0325,32.7219],[-117.0252,32.7233],[-117.0091,32.7503],
+      [-117.0222,32.7658],[-116.9960,32.7840],[-116.9621,32.7945],
+    ],
+  },
+  // ── MTS Trolley Green Line (12th & Imperial → Santee) ──
+  {
+    id: "sdmts-green",
+    short_name: "Green",
+    long_name: "12th & Imperial – Santee Town Center",
+    route_type: 0,
+    route_color: "#00A84F",
+    agency_id: "sdmts",
+    station_ids: [
+      "sd-12th-imperial","sd-park-blvd","sd-city-heights","sd-sdsu",
+      "sd-grantville","sd-mission-san-diego","sd-qualcomm","sd-navajo",
+      "sd-rio-vista","sd-mission-gorge","sd-gillespie","sd-arnele","sd-santee",
+    ],
+    coordinates: [
+      [-117.1544,32.7061],[-117.1467,32.7073],[-117.1103,32.7197],
+      [-117.0770,32.7743],[-117.0970,32.7631],[-117.1045,32.7832],
+      [-117.1200,32.7843],[-117.0670,32.7893],[-117.0470,32.8038],
+      [-117.0307,32.8115],[-116.9929,32.8189],[-116.9790,32.8302],
+      [-116.9735,32.8383],
+    ],
+  },
+  // ── MTS Trolley Copper Line (UTC → SDSU) ──
+  {
+    id: "sdmts-copper",
+    short_name: "Copper",
+    long_name: "UTC – SDSU via Mid-Coast",
+    route_type: 0,
+    route_color: "#C15A2E",
+    agency_id: "sdmts",
+    station_ids: [
+      "sd-utc","sd-executive-dr","sd-nobel-dr","sd-va-medical",
+      "sd-ucsd-central","sd-ucsd-health","sd-tecolote","sd-clairemont-mesa",
+      "sd-balboa-ave","sd-old-town","sd-washington-st","sd-fashion-valley",
+      "sd-hazard-center","sd-mission-valley","sd-sdsu",
+    ],
+    coordinates: [
+      [-117.2214,32.8720],[-117.2192,32.8680],[-117.2163,32.8614],
+      [-117.2108,32.8543],[-117.2340,32.8801],[-117.2350,32.8750],
+      [-117.2070,32.8410],[-117.2000,32.8337],[-117.1880,32.8232],
+      [-117.1970,32.7546],[-117.1930,32.7480],[-117.1680,32.7669],
+      [-117.1590,32.7710],[-117.1440,32.7755],[-117.0770,32.7743],
+    ],
+    },
+  // ── MTS Trolley Silver Line (placeholder — future BRT) ──
+  {
+    id: "sdmts-silver",
+    short_name: "Silver",
+    long_name: "South Bay to Downtown Rapid",
+    route_type: 3,
+    route_color: "#A7A9AC",
+    agency_id: "mts-bus",
+    station_ids: [
+      "sd-otay-ranch","sd-otay-mesa","sd-palomar-st","sd-24th-st",
+      "sd-12th-imperial","sd-city-college","sd-civic-center",
+    ],
+    coordinates: [
+      [-116.9382,32.6092],[-117.0350,32.5550],[-117.0915,32.6303],
+      [-117.1130,32.6758],[-117.1544,32.7061],[-117.1595,32.7199],
+      [-117.1640,32.7150],
+    ],
+  },
+  // ── NCTD Sprinter (Oceanside – Escondido) ──
+  {
+    id: "nctd-sprinter",
+    short_name: "Sprinter",
+    long_name: "Oceanside – Escondido",
+    route_type: 0,
+    route_color: "#E31837",
+    agency_id: "nctd",
+    station_ids: [
+      "nctd-oceanside-transit","nctd-coast-hwy","nctd-crouch-st",
+      "nctd-el-camino-real","nctd-melrose","nctd-vista","nctd-civic-center-vista",
+      "nctd-rancho-buena-vista","nctd-palomar-college","nctd-san-marcos-civic",
+      "nctd-csusm","nctd-nordahl","nctd-westfield-north","nctd-escondido-transit",
+    ],
+    coordinates: [
+      [-117.3792,33.1950],[-117.3614,33.1943],[-117.3349,33.1901],
+      [-117.3107,33.1817],[-117.2961,33.1749],[-117.2460,33.2024],
+      [-117.2365,33.1968],[-117.2157,33.1860],[-117.1718,33.1517],
+      [-117.1503,33.1356],[-117.1361,33.1300],[-117.1134,33.1264],
+      [-117.0817,33.1245],[-117.0836,33.1204],
+    ],
+  },
+  // ── NCTD Coaster (Oceanside – San Diego Old Town) ──
+  {
+    id: "nctd-coaster",
+    short_name: "Coaster",
+    long_name: "Oceanside – San Diego Old Town",
+    route_type: 2,
+    route_color: "#004B87",
+    agency_id: "nctd",
+    station_ids: [
+      "nctd-oceanside-transit","nctd-carlsbad-village","nctd-carlsbad-poinsettia",
+      "nctd-encinitas","nctd-solana-beach","nctd-sorrento-valley",
+      "sd-old-town","sd-santa-fe",
+    ],
+    coordinates: [
+      [-117.3792,33.1950],[-117.3498,33.1616],[-117.3423,33.1311],
+      [-117.2919,33.0447],[-117.2721,32.9878],[-117.2341,32.8985],
+      [-117.1970,32.7546],[-117.1705,32.7236],
+    ],
+  },
+  // ── Amtrak Pacific Surfliner (San Diego → LA) ──
+  {
+    id: "amtrak-surfliner",
+    short_name: "Surfliner",
+    long_name: "San Diego – Los Angeles Pacific Surfliner",
+    route_type: 2,
+    route_color: "#1C5BA2",
+    agency_id: "amtrak",
+    station_ids: [
+      "sd-santa-fe","sd-old-town","nctd-solana-beach","nctd-oceanside-transit",
+      "amtrak-san-clemente","amtrak-san-juan","amtrak-irvine",
+      "amtrak-fullerton","amtrak-la-union",
+    ],
+    coordinates: [
+      [-117.1705,32.7236],[-117.1970,32.7546],[-117.2721,32.9878],
+      [-117.3792,33.1950],[-117.6188,33.4271],[-117.6620,33.4965],
+      [-117.7676,33.6862],[-117.9254,33.8703],[-118.2342,34.0560],
+    ],
+  },
+  // ── MTS Rapid Bus 215 (Mid-City) ──
+  {
+    id: "mts-rapid-215",
+    short_name: "215",
+    long_name: "Rapid 215 – Mid-City to Downtown",
+    route_type: 3,
+    route_color: "#9B2335",
+    agency_id: "mts-bus",
+    station_ids: [
+      "sd-sdsu","sd-el-cajon-bl-70th","sd-el-cajon-bl-park","sd-university-heights",
+      "sd-hillcrest","sd-downtown-bus",
+    ],
+    coordinates: [
+      [-117.0770,32.7743],[-117.0880,32.7588],[-117.1218,32.7550],
+      [-117.1342,32.7514],[-117.1624,32.7488],[-117.1650,32.7170],
+    ],
+  },
+  // ── MTS Rapid Bus 235 (El Cajon Blvd) ──
+  {
+    id: "mts-rapid-235",
+    short_name: "235",
+    long_name: "Rapid 235 – SDSU to UTC",
+    route_type: 3,
+    route_color: "#00838F",
+    agency_id: "mts-bus",
+    station_ids: [
+      "sd-sdsu","sd-college-area","sd-kensington","sd-normal-heights",
+      "sd-north-park","sd-university-heights","sd-hillcrest","sd-old-town",
+      "sd-clairemont","sd-utc",
+    ],
+    coordinates: [
+      [-117.0770,32.7743],[-117.0750,32.7650],[-117.1018,32.7600],
+      [-117.1170,32.7655],[-117.1300,32.7460],[-117.1342,32.7514],
+      [-117.1624,32.7488],[-117.1970,32.7546],[-117.2050,32.8100],
+      [-117.2214,32.8720],
+    ],
+  },
+  // ── MTS Rapid Bus 225 (South Bay) ──
+  {
+    id: "mts-rapid-225",
+    short_name: "225",
+    long_name: "Rapid 225 – Otay Mesa to Downtown",
+    route_type: 3,
+    route_color: "#5C2D91",
+    agency_id: "mts-bus",
+    station_ids: [
+      "sd-otay-mesa","sd-palm-ave","sd-iris-ave","sd-national-city",
+      "sd-barrio-logan","sd-12th-imperial","sd-downtown-bus",
+    ],
+    coordinates: [
+      [-117.0350,32.5550],[-117.0865,32.6164],[-117.0832,32.6065],
+      [-117.1000,32.6700],[-117.1434,32.6996],[-117.1544,32.7061],
+      [-117.1650,32.7170],
+    ],
+  },
 ];
 
 // ===================== STATIONS =====================
 
-// Map of existing station IDs → additional route IDs from new lines
-const routeIdAugments: Record<string, string[]> = {
-  // BART core (Yellow+Red+Blue) → add Green and/or Orange
-  "bart-macarthur":          ["bart-orange"],
-  "bart-19th-oak":           ["bart-orange"],
-  "bart-12th-oak":           ["bart-green", "bart-orange"],
-  "bart-west-oak":           ["bart-green"],
-  "bart-embarcadero":        ["bart-green"],
-  "bart-montgomery":         ["bart-green"],
-  "bart-powell":             ["bart-green"],
-  "bart-civic-center":       ["bart-green"],
-  "bart-16th-mission":       ["bart-green"],
-  "bart-24th-mission":       ["bart-green"],
-  "bart-glen-park":          ["bart-green"],
-  "bart-balboa":             ["bart-green"],
-  "bart-daly-city":          ["bart-green"],
-  // BART Red branch → add Orange
-  "bart-richmond":           ["bart-orange"],
-  "bart-el-cerrito-norte":   ["bart-orange"],
-  "bart-el-cerrito-plaza":   ["bart-orange"],
-  "bart-north-berkeley":     ["bart-orange"],
-  "bart-downtown-berkeley":  ["bart-orange"],
-  "bart-ashby":              ["bart-orange"],
-  // BART Blue branch → add Green and/or Orange
-  "bart-bay-fair":           ["bart-green", "bart-orange"],
-  "bart-san-leandro":        ["bart-green", "bart-orange"],
-  "bart-fruitvale":          ["bart-orange"],
-  "bart-coliseum":           ["bart-green", "bart-orange"],
-  "bart-lake-merritt":       ["bart-green", "bart-orange"],
-  // LA Metro shared stations → add D, E, Metrolink lines
-  "la-wilshire-vermont":     ["lametro-d"],
-  "la-macarthur-park":       ["lametro-d"],
-  "la-7th-metro":            ["lametro-d", "lametro-e"],
-  "la-pershing":             ["lametro-d"],
-  "la-civic-center-la":      ["lametro-d"],
-  "la-union-station":        ["lametro-d", "metrolink-sbline", "metrolink-avline", "metrolink-ocline", "metrolink-vcline"],
-};
-
-const baseStations: DemoStation[] = [
-  // ── BART Yellow Line branch stations ──
-  { id:"bart-antioch",       name:"Antioch",                     lat:37.9953, lng:-121.7797, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-pittsburg",     name:"Pittsburg/Bay Point",         lat:37.9974, lng:-121.9449, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-concord",       name:"Concord",                     lat:37.9738, lng:-122.0292, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-pleasant-hill", name:"Pleasant Hill",               lat:37.9285, lng:-122.0568, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-walnut-creek",  name:"Walnut Creek",                lat:37.9057, lng:-122.0676, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-lafayette",     name:"Lafayette",                   lat:37.8932, lng:-122.1235, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-orinda",        name:"Orinda",                      lat:37.8784, lng:-122.1834, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-rockridge",     name:"Rockridge",                   lat:37.8440, lng:-122.2514, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  // Shared Oakland/SF core (Yellow + Red + Blue)
-  { id:"bart-macarthur",     name:"MacArthur",                   lat:37.8287, lng:-122.2672, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-19th-oak",      name:"19th St Oakland",             lat:37.8082, lng:-122.2681, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-12th-oak",      name:"12th St Oakland City Center", lat:37.8036, lng:-122.2716, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-west-oak",      name:"West Oakland",                lat:37.8046, lng:-122.2947, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-embarcadero",   name:"Embarcadero",                 lat:37.7928, lng:-122.3966, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-montgomery",    name:"Montgomery St",               lat:37.7886, lng:-122.4012, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-powell",        name:"Powell St",                   lat:37.7844, lng:-122.4079, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-civic-center",  name:"Civic Center/UN Plaza",       lat:37.7796, lng:-122.4140, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-16th-mission",  name:"16th St Mission",             lat:37.7651, lng:-122.4193, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-24th-mission",  name:"24th St Mission",             lat:37.7522, lng:-122.4183, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-glen-park",     name:"Glen Park",                   lat:37.7329, lng:-122.4337, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-balboa",        name:"Balboa Park",                 lat:37.7218, lng:-122.4477, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  { id:"bart-daly-city",     name:"Daly City",                   lat:37.7062, lng:-122.4688, route_ids:["bart-yellow","bart-red","bart-blue"],     agency_id:"bart" },
-  // Yellow Line south peninsula
-  { id:"bart-colma",         name:"Colma",                       lat:37.6847, lng:-122.4660, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-south-sf",      name:"South San Francisco",         lat:37.6647, lng:-122.4442, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-san-bruno",     name:"San Bruno",                   lat:37.6309, lng:-122.4116, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-sfo",           name:"San Francisco Int'l Airport", lat:37.6161, lng:-122.3928, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  { id:"bart-millbrae",      name:"Millbrae",                    lat:37.5996, lng:-122.3866, route_ids:["bart-yellow"],                           agency_id:"bart" },
-  // Red Line branch (Berkeley/Richmond)
-  { id:"bart-richmond",           name:"Richmond",               lat:37.9372, lng:-122.3532, route_ids:["bart-red"],  agency_id:"bart" },
-  { id:"bart-el-cerrito-norte",   name:"El Cerrito del Norte",   lat:37.9254, lng:-122.3173, route_ids:["bart-red"],  agency_id:"bart" },
-  { id:"bart-el-cerrito-plaza",   name:"El Cerrito Plaza",       lat:37.9017, lng:-122.2990, route_ids:["bart-red"],  agency_id:"bart" },
-  { id:"bart-north-berkeley",     name:"North Berkeley",         lat:37.8744, lng:-122.2832, route_ids:["bart-red"],  agency_id:"bart" },
-  { id:"bart-downtown-berkeley",  name:"Downtown Berkeley",      lat:37.8697, lng:-122.2679, route_ids:["bart-red"],  agency_id:"bart" },
-  { id:"bart-ashby",              name:"Ashby",                  lat:37.8529, lng:-122.2699, route_ids:["bart-red"],  agency_id:"bart" },
-  // Blue Line branch (East Bay)
-  { id:"bart-dublin",        name:"Dublin/Pleasanton",           lat:37.7016, lng:-121.8990, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-west-dublin",   name:"West Dublin/Pleasanton",      lat:37.6994, lng:-121.9282, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-castro-valley", name:"Castro Valley",               lat:37.6939, lng:-122.0768, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-bay-fair",      name:"Bay Fair",                    lat:37.6993, lng:-122.1270, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-san-leandro",   name:"San Leandro",                 lat:37.7027, lng:-122.1604, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-fruitvale",     name:"Fruitvale",                   lat:37.7748, lng:-122.2242, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-coliseum",      name:"Coliseum",                    lat:37.7540, lng:-122.1982, route_ids:["bart-blue"], agency_id:"bart" },
-  { id:"bart-lake-merritt",  name:"Lake Merritt",                lat:37.7978, lng:-122.2651, route_ids:["bart-blue"], agency_id:"bart" },
-
-  // ── LA Metro B Line (Red) ──
-  { id:"la-north-hollywood",  name:"North Hollywood",          lat:34.1688, lng:-118.3768, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-universal",        name:"Universal/Studio City",    lat:34.1413, lng:-118.3510, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-highland",         name:"Hollywood/Highland",       lat:34.1019, lng:-118.3386, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-vine",             name:"Hollywood/Vine",           lat:34.1011, lng:-118.3255, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-western",          name:"Hollywood/Western",        lat:34.1008, lng:-118.3147, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-vermont-sunset",   name:"Vermont/Sunset",           lat:34.0999, lng:-118.2920, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-vermont-beverly",  name:"Vermont/Beverly",          lat:34.0750, lng:-118.2920, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-wilshire-vermont", name:"Wilshire/Vermont",         lat:34.0632, lng:-118.2921, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-macarthur-park",   name:"Westlake/MacArthur Park",  lat:34.0585, lng:-118.2764, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-7th-metro",        name:"7th St/Metro Center",      lat:34.0487, lng:-118.2588, route_ids:["lametro-b","lametro-a"], agency_id:"lametro" },
-  { id:"la-pershing",         name:"Pershing Square",          lat:34.0488, lng:-118.2517, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-civic-center-la",  name:"Civic Center/Grand Park",  lat:34.0557, lng:-118.2433, route_ids:["lametro-b"],              agency_id:"lametro" },
-  { id:"la-union-station",    name:"Union Station",            lat:34.0560, lng:-118.2342, route_ids:["lametro-b"],              agency_id:"lametro" },
-
-  // ── LA Metro A Line (Blue) ──
-  { id:"la-downtown-lb",  name:"Downtown Long Beach",  lat:33.7701, lng:-118.1896, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-transit-mall", name:"Transit Mall",         lat:33.7759, lng:-118.1894, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-5th-st",       name:"5th St",               lat:33.7806, lng:-118.1894, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-1st-st",       name:"1st St",               lat:33.7873, lng:-118.1894, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-anaheim",      name:"Anaheim St",           lat:33.7960, lng:-118.1894, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-pacific",      name:"Pacific",              lat:33.8050, lng:-118.1895, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-del-amo",      name:"Del Amo",              lat:33.8440, lng:-118.2029, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-compton",      name:"Compton",              lat:33.8966, lng:-118.2175, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-artesia",      name:"Artesia",              lat:33.9148, lng:-118.2221, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-redondo",      name:"Redondo/Marine",       lat:33.9360, lng:-118.2454, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-slauson",      name:"Slauson",              lat:34.0028, lng:-118.2528, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-florence",     name:"Florence",             lat:33.9729, lng:-118.2583, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-grand-ave",    name:"Grand/LATTC",          lat:34.0362, lng:-118.2582, route_ids:["lametro-a"], agency_id:"lametro" },
-  { id:"la-san-pedro",    name:"San Pedro St",         lat:34.0406, lng:-118.2410, route_ids:["lametro-a"], agency_id:"lametro" },
-];
-
-// Apply route_id augmentations for new lines sharing existing stations
-baseStations.forEach((s) => {
-  const extra = routeIdAugments[s.id];
-  if (extra) s.route_ids = [...s.route_ids, ...extra];
-});
-
 export const demoStations: DemoStation[] = [
-  ...baseStations,
-  ...(norcalStations as DemoStation[]),
-  ...(socalStations as DemoStation[]),
+  // ── MTS Blue Line Stations ──
+  { id: "sd-america-plaza", name: "America Plaza", lat: 32.7193, lng: -117.1690, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-county-center", name: "County Center/Little Italy", lat: 32.7173, lng: -117.1668, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-civic-center", name: "Civic Center", lat: 32.7150, lng: -117.1640, route_ids: ["sdmts-blue", "sdmts-silver"], agency_id: "sdmts" },
+  { id: "sd-5th-ave", name: "5th Avenue", lat: 32.7138, lng: -117.1610, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-city-college", name: "City College", lat: 32.7199, lng: -117.1595, route_ids: ["sdmts-blue", "sdmts-silver"], agency_id: "sdmts" },
+  { id: "sd-12th-imperial", name: "12th & Imperial Transit Center", lat: 32.7061, lng: -117.1544, route_ids: ["sdmts-blue", "sdmts-orange", "sdmts-green", "sdmts-silver", "mts-rapid-225"], agency_id: "sdmts" },
+  { id: "sd-barrio-logan", name: "Barrio Logan", lat: 32.6996, lng: -117.1434, route_ids: ["sdmts-blue", "mts-rapid-225"], agency_id: "sdmts" },
+  { id: "sd-harborside", name: "Harborside", lat: 32.6905, lng: -117.1360, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-pacific-fleet", name: "Pacific Fleet", lat: 32.6831, lng: -117.1252, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-24th-st", name: "24th Street", lat: 32.6758, lng: -117.1130, route_ids: ["sdmts-blue", "sdmts-silver"], agency_id: "sdmts" },
+  { id: "sd-bayfront-e-st", name: "Bayfront/E Street", lat: 32.6600, lng: -117.1049, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-h-st", name: "H Street", lat: 32.6477, lng: -117.0990, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-palomar-st", name: "Palomar Street", lat: 32.6303, lng: -117.0915, route_ids: ["sdmts-blue", "sdmts-silver"], agency_id: "sdmts" },
+  { id: "sd-palm-ave", name: "Palm Avenue", lat: 32.6164, lng: -117.0865, route_ids: ["sdmts-blue", "mts-rapid-225"], agency_id: "sdmts" },
+  { id: "sd-iris-ave", name: "Iris Avenue", lat: 32.6065, lng: -117.0832, route_ids: ["sdmts-blue", "mts-rapid-225"], agency_id: "sdmts" },
+  { id: "sd-beyer-blvd", name: "Beyer Blvd", lat: 32.5772, lng: -117.0617, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+  { id: "sd-san-ysidro", name: "San Ysidro Transit Center", lat: 32.5484, lng: -117.0416, route_ids: ["sdmts-blue"], agency_id: "sdmts" },
+
+  // ── MTS Orange Line Stations ──
+  { id: "sd-courthouse", name: "Courthouse", lat: 32.7188, lng: -117.1710, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-santa-fe", name: "Santa Fe Depot", lat: 32.7236, lng: -117.1705, route_ids: ["sdmts-orange", "nctd-coaster", "amtrak-surfliner"], agency_id: "sdmts" },
+  { id: "sd-seaport-village", name: "Seaport Village", lat: 32.7098, lng: -117.1685, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-convention-center", name: "Convention Center", lat: 32.7078, lng: -117.1645, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-gaslamp", name: "Gaslamp Quarter", lat: 32.7119, lng: -117.1601, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-park-blvd", name: "Park & Market", lat: 32.7073, lng: -117.1467, route_ids: ["sdmts-orange", "sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-city-heights", name: "City Heights", lat: 32.7197, lng: -117.1103, route_ids: ["sdmts-orange", "sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-fairmount", name: "Fairmount Avenue", lat: 32.7244, lng: -117.0917, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-47th-st", name: "47th Street", lat: 32.7274, lng: -117.0850, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-euclid", name: "Euclid Avenue", lat: 32.7300, lng: -117.0678, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-encanto", name: "Encanto/62nd Street", lat: 32.7181, lng: -117.0481, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-lemon-grove", name: "Lemon Grove Depot", lat: 32.7219, lng: -117.0325, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-massachusetts", name: "Massachusetts Avenue", lat: 32.7233, lng: -117.0252, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-grossmont", name: "Grossmont Transit Center", lat: 32.7503, lng: -117.0091, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-la-mesa", name: "La Mesa Blvd", lat: 32.7658, lng: -117.0222, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-amaya", name: "Amaya Drive", lat: 32.7840, lng: -116.9960, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+  { id: "sd-el-cajon", name: "El Cajon Transit Center", lat: 32.7945, lng: -116.9621, route_ids: ["sdmts-orange"], agency_id: "sdmts" },
+
+  // ── MTS Green Line Stations (not shared) ──
+  { id: "sd-sdsu", name: "SDSU Transit Center", lat: 32.7743, lng: -117.0770, route_ids: ["sdmts-green", "sdmts-copper", "mts-rapid-215", "mts-rapid-235"], agency_id: "sdmts" },
+  { id: "sd-grantville", name: "Grantville", lat: 32.7631, lng: -117.0970, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-mission-san-diego", name: "Mission San Diego", lat: 32.7832, lng: -117.1045, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-qualcomm", name: "Snapdragon Stadium", lat: 32.7843, lng: -117.1200, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-navajo", name: "Navajo", lat: 32.7893, lng: -117.0670, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-rio-vista", name: "Rio Vista", lat: 32.8038, lng: -117.0470, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-mission-gorge", name: "Mission Gorge", lat: 32.8115, lng: -117.0307, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-gillespie", name: "Gillespie Field", lat: 32.8189, lng: -116.9929, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-arnele", name: "Arnele Avenue", lat: 32.8302, lng: -116.9790, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+  { id: "sd-santee", name: "Santee Town Center", lat: 32.8383, lng: -116.9735, route_ids: ["sdmts-green"], agency_id: "sdmts" },
+
+  // ── MTS Copper Line Stations ──
+  { id: "sd-utc", name: "UTC Transit Center", lat: 32.8720, lng: -117.2214, route_ids: ["sdmts-copper", "mts-rapid-235"], agency_id: "sdmts" },
+  { id: "sd-executive-dr", name: "Executive Drive", lat: 32.8680, lng: -117.2192, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-nobel-dr", name: "Nobel Drive", lat: 32.8614, lng: -117.2163, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-va-medical", name: "VA Medical Center", lat: 32.8543, lng: -117.2108, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-ucsd-central", name: "UC San Diego Central", lat: 32.8801, lng: -117.2340, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-ucsd-health", name: "UC San Diego Health", lat: 32.8750, lng: -117.2350, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-tecolote", name: "Tecolote Road", lat: 32.8410, lng: -117.2070, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-clairemont-mesa", name: "Clairemont Mesa", lat: 32.8337, lng: -117.2000, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-balboa-ave", name: "Balboa Avenue", lat: 32.8232, lng: -117.1880, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-old-town", name: "Old Town Transit Center", lat: 32.7546, lng: -117.1970, route_ids: ["sdmts-copper", "nctd-coaster", "amtrak-surfliner", "mts-rapid-235"], agency_id: "sdmts" },
+  { id: "sd-washington-st", name: "Washington Street", lat: 32.7480, lng: -117.1930, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-fashion-valley", name: "Fashion Valley Transit Center", lat: 32.7669, lng: -117.1680, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-hazard-center", name: "Hazard Center", lat: 32.7710, lng: -117.1590, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+  { id: "sd-mission-valley", name: "Mission Valley Center", lat: 32.7755, lng: -117.1440, route_ids: ["sdmts-copper"], agency_id: "sdmts" },
+
+  // ── MTS Silver / BRT Stations ──
+  { id: "sd-otay-ranch", name: "Otay Ranch Town Center", lat: 32.6092, lng: -116.9382, route_ids: ["sdmts-silver"], agency_id: "mts-bus" },
+  { id: "sd-otay-mesa", name: "Otay Mesa Transit Center", lat: 32.5550, lng: -117.0350, route_ids: ["sdmts-silver", "mts-rapid-225"], agency_id: "mts-bus" },
+  { id: "sd-national-city", name: "National City", lat: 32.6700, lng: -117.1000, route_ids: ["mts-rapid-225"], agency_id: "mts-bus" },
+  { id: "sd-downtown-bus", name: "Downtown San Diego Bus Hub", lat: 32.7170, lng: -117.1650, route_ids: ["mts-rapid-215", "mts-rapid-225"], agency_id: "mts-bus" },
+
+  // ── MTS Rapid 215 / 235 Bus Stops ──
+  { id: "sd-el-cajon-bl-70th", name: "El Cajon Blvd & 70th", lat: 32.7588, lng: -117.0880, route_ids: ["mts-rapid-215"], agency_id: "mts-bus" },
+  { id: "sd-el-cajon-bl-park", name: "El Cajon Blvd & Park", lat: 32.7550, lng: -117.1218, route_ids: ["mts-rapid-215"], agency_id: "mts-bus" },
+  { id: "sd-university-heights", name: "University Heights", lat: 32.7514, lng: -117.1342, route_ids: ["mts-rapid-215", "mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-hillcrest", name: "Hillcrest", lat: 32.7488, lng: -117.1624, route_ids: ["mts-rapid-215", "mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-college-area", name: "College Area", lat: 32.7650, lng: -117.0750, route_ids: ["mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-kensington", name: "Kensington", lat: 32.7600, lng: -117.1018, route_ids: ["mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-normal-heights", name: "Normal Heights", lat: 32.7655, lng: -117.1170, route_ids: ["mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-north-park", name: "North Park", lat: 32.7460, lng: -117.1300, route_ids: ["mts-rapid-235"], agency_id: "mts-bus" },
+  { id: "sd-clairemont", name: "Clairemont", lat: 32.8100, lng: -117.2050, route_ids: ["mts-rapid-235"], agency_id: "mts-bus" },
+
+  // ── NCTD Sprinter Stations ──
+  { id: "nctd-oceanside-transit", name: "Oceanside Transit Center", lat: 33.1950, lng: -117.3792, route_ids: ["nctd-sprinter", "nctd-coaster", "amtrak-surfliner"], agency_id: "nctd" },
+  { id: "nctd-coast-hwy", name: "Coast Highway", lat: 33.1943, lng: -117.3614, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-crouch-st", name: "Crouch Street", lat: 33.1901, lng: -117.3349, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-el-camino-real", name: "El Camino Real", lat: 33.1817, lng: -117.3107, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-melrose", name: "Melrose Drive", lat: 33.1749, lng: -117.2961, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-vista", name: "Vista Transit Center", lat: 33.2024, lng: -117.2460, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-civic-center-vista", name: "Civic Center Vista", lat: 33.1968, lng: -117.2365, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-rancho-buena-vista", name: "Rancho Buena Vista", lat: 33.1860, lng: -117.2157, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-palomar-college", name: "Palomar College", lat: 33.1517, lng: -117.1718, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-san-marcos-civic", name: "San Marcos Civic Center", lat: 33.1356, lng: -117.1503, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-csusm", name: "Cal State San Marcos", lat: 33.1300, lng: -117.1361, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-nordahl", name: "Nordahl Road", lat: 33.1264, lng: -117.1134, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-westfield-north", name: "Westfield North County", lat: 33.1245, lng: -117.0817, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+  { id: "nctd-escondido-transit", name: "Escondido Transit Center", lat: 33.1204, lng: -117.0836, route_ids: ["nctd-sprinter"], agency_id: "nctd" },
+
+  // ── NCTD Coaster Stations ──
+  { id: "nctd-carlsbad-village", name: "Carlsbad Village", lat: 33.1616, lng: -117.3498, route_ids: ["nctd-coaster"], agency_id: "nctd" },
+  { id: "nctd-carlsbad-poinsettia", name: "Carlsbad Poinsettia", lat: 33.1311, lng: -117.3423, route_ids: ["nctd-coaster"], agency_id: "nctd" },
+  { id: "nctd-encinitas", name: "Encinitas", lat: 33.0447, lng: -117.2919, route_ids: ["nctd-coaster"], agency_id: "nctd" },
+  { id: "nctd-solana-beach", name: "Solana Beach", lat: 32.9878, lng: -117.2721, route_ids: ["nctd-coaster", "amtrak-surfliner"], agency_id: "nctd" },
+  { id: "nctd-sorrento-valley", name: "Sorrento Valley", lat: 32.8985, lng: -117.2341, route_ids: ["nctd-coaster"], agency_id: "nctd" },
+
+  // ── Amtrak Pacific Surfliner stops (not shared above) ──
+  { id: "amtrak-san-clemente", name: "San Clemente Pier", lat: 33.4271, lng: -117.6188, route_ids: ["amtrak-surfliner"], agency_id: "amtrak" },
+  { id: "amtrak-san-juan", name: "San Juan Capistrano", lat: 33.4965, lng: -117.6620, route_ids: ["amtrak-surfliner"], agency_id: "amtrak" },
+  { id: "amtrak-irvine", name: "Irvine", lat: 33.6862, lng: -117.7676, route_ids: ["amtrak-surfliner"], agency_id: "amtrak" },
+  { id: "amtrak-fullerton", name: "Fullerton", lat: 33.8703, lng: -117.9254, route_ids: ["amtrak-surfliner"], agency_id: "amtrak" },
+  { id: "amtrak-la-union", name: "LA Union Station", lat: 34.0560, lng: -118.2342, route_ids: ["amtrak-surfliner"], agency_id: "amtrak" },
 ];
 
 // Lookup helpers

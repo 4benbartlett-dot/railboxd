@@ -61,11 +61,11 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/map");
+      router.push("/dashboard");
     } catch {
       // Network error = Supabase not configured, fall back to demo mode
       await new Promise((resolve) => setTimeout(resolve, 500));
-      router.push("/map");
+      router.push("/dashboard");
     }
   }
 

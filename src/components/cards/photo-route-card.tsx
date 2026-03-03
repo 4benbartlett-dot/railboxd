@@ -6,6 +6,7 @@ import { Eye, Heart, Sparkles } from "lucide-react";
 import { useLazyPlacePhoto } from "@/hooks/use-lazy-place-photo";
 import type { DemoRoute } from "@/lib/demo-data";
 import { getAgencyById, getStationsForRoute } from "@/lib/demo-data";
+import { getTransitInfo } from "@/lib/transit-history-data";
 import { useAppStore } from "@/stores/app-store";
 
 interface PhotoRouteCardProps {
@@ -32,6 +33,8 @@ export function PhotoRouteCard({
   const stations = getStationsForRoute(route.id);
   const firstStation = stations[0];
   const agency = getAgencyById(route.agency_id);
+  const transitInfo = getTransitInfo(route.id);
+  const autoNew = isNew || (transitInfo?.isNew ?? false);
   const { ref, heroUrl, loading } = useLazyPlacePhoto(
     firstStation?.name,
     firstStation?.lat,
@@ -85,7 +88,7 @@ export function PhotoRouteCard({
         <div className="absolute inset-0 photo-card-gradient" />
 
         {/* NEW badge */}
-        {isNew && (
+        {autoNew && (
           <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
             style={{ background: "var(--rb-new-badge)", color: "#000" }}>
             <Sparkles className="w-2.5 h-2.5" />

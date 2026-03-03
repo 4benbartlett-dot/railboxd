@@ -11,29 +11,33 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user) {
-      // Check if profile exists, create if not
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", data.user.id)
-        .single();
+      // Try to create profile, but don't block auth if it fails
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", data.user.id)
+          .single();
 
-      if (!profile) {
-        const username =
-          data.user.user_metadata?.username ||
-          data.user.email?.split("@")[0] ||
-          `user_${data.user.id.slice(0, 8)}`;
+        if (!profile) {
+          const username =
+            data.user.user_metadata?.username ||
+            data.user.email?.split("@")[0] ||
+            `user_${data.user.id.slice(0, 8)}`;
 
-        await supabase.from("profiles").insert({
-          id: data.user.id,
-          username,
-          display_name:
-            data.user.user_metadata?.full_name ||
-            data.user.user_metadata?.name ||
+          await supabase.from("profiles").insert({
+            id: data.user.id,
             username,
-          avatar_url: data.user.user_metadata?.avatar_url || null,
-          home_city: data.user.user_metadata?.home_city || null,
-        });
+            display_name:
+              data.user.user_metadata?.full_name ||
+              data.user.user_metadata?.name ||
+              username,
+            avatar_url: data.user.user_metadata?.avatar_url || null,
+            home_city: data.user.user_metadata?.home_city || null,
+          });
+        }
+      } catch {
+        // Profile table may not exist yet — auth still works
       }
 
       return NextResponse.redirect(`${origin}${next}`);

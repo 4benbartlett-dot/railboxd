@@ -1,10 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
   MapPin, ArrowLeft, Train, Heart, Bookmark, Eye,
   Clock, Users, Navigation,
@@ -18,6 +18,10 @@ import {
   getStationsForRoute,
   demoStations,
 } from "@/lib/demo-data";
+import { PhotoRouteCard } from "@/components/cards/photo-route-card";
+import { PhotoStationCard } from "@/components/cards/photo-station-card";
+import { LandmarkCard } from "@/components/cards/landmark-card";
+import { getLandmarksNearStation } from "@/lib/urbanist-data";
 
 const MODE_LABELS: Record<number, string> = {
   0: "Tram", 1: "Heavy Rail", 2: "Commuter Rail", 3: "Bus", 4: "Ferry",
@@ -116,6 +120,9 @@ export default function StationDetailPage() {
     })
     .slice(0, 6);
 
+  // Nearby landmarks
+  const nearbyLandmarks = getLandmarksNearStation(id);
+
   // Primary route color for theming
   const primaryRoute = routes[0];
   const themeColor = primaryRoute?.route_color ?? "#00e054";
@@ -126,20 +133,27 @@ export default function StationDetailPage() {
     : `${station.name} Station`;
   const { heroUrl } = useHeroPhoto(searchQuery, station.lat, station.lng);
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 400], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#14181c" }}>
       {/* ── Cinematic Backdrop ── */}
-      <div className="relative w-full h-[220px] sm:h-[300px] lg:h-[380px] overflow-hidden">
-        {/* Real photo layer */}
+      <div ref={heroRef} className="relative w-full h-[220px] sm:h-[300px] lg:h-[380px] overflow-hidden">
+        {/* Real photo layer with parallax */}
         {heroUrl && (
-          <Image
-            src={heroUrl}
-            alt={station.name}
-            fill
-            className="object-cover"
-            priority
-            unoptimized
-          />
+          <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
+            <Image
+              src={heroUrl}
+              alt={station.name}
+              fill
+              className="object-cover"
+              priority
+              unoptimized
+            />
+          </motion.div>
         )}
         {/* Gradient overlay (always present — tints photo or stands alone as fallback) */}
         <div className="absolute inset-0" style={{
@@ -360,49 +374,9 @@ export default function StationDetailPage() {
                     </div>
                   ) : (
                     <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                      {routes.map((route) => {
-                        if (!route) return null;
-                        const rc = route.route_color ?? "#666";
-                        const tc = textColor(rc);
-                        const rLogged = loggedRouteIds.has(route.id);
-                        const rStations = getStationsForRoute(route.id);
-                        const rAgency = getAgencyById(route.agency_id);
-                        return (
-                          <Link key={route.id} href={`/route/${route.id}`} className="flex-shrink-0 w-[120px] group">
-                            <div
-                              className="w-full aspect-[2/3] rounded shadow-lg relative overflow-hidden group-hover:ring-2 group-hover:ring-[#00e054] transition-all"
-                              style={{ backgroundColor: rc }}
-                            >
-                              <div className="absolute inset-0 opacity-[0.06]" style={{
-                                backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.1) 8px, rgba(255,255,255,0.1) 16px)",
-                              }} />
-                              <div className="relative h-full flex flex-col items-center justify-center p-3 text-center">
-                                <Train className="w-5 h-5 mb-1.5 opacity-40" style={{ color: tc }} />
-                                <div className="text-3xl font-black tracking-tight leading-none" style={{ color: tc }}>
-                                  {route.short_name}
-                                </div>
-                                <div className="text-[8px] font-semibold mt-1.5 opacity-50 uppercase tracking-[0.2em]" style={{ color: tc }}>
-                                  {MODE_LABELS[route.route_type] ?? "Rail"}
-                                </div>
-                                <div className="absolute bottom-2.5 text-[7px] font-medium opacity-35 uppercase tracking-wider" style={{ color: tc }}>
-                                  {rAgency?.name}
-                                </div>
-                              </div>
-                              {rLogged && (
-                                <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#00e054] flex items-center justify-center">
-                                  <Eye className="w-2.5 h-2.5 text-[#0a0c0f]" />
-                                </div>
-                              )}
-                            </div>
-                            <p className="text-[11px] text-[#9ab] mt-1.5 leading-snug line-clamp-2 group-hover:text-white transition-colors">
-                              {route.long_name}
-                            </p>
-                            <p className="text-[10px] text-[#456] mt-0.5">
-                              {rStations.length} stations
-                            </p>
-                          </Link>
-                        );
-                      })}
+                      {routes.map((route) => route && (
+                        <PhotoRouteCard key={route.id} route={route} size="sm" showActions={false} />
+                      ))}
                     </div>
                   )}
 
@@ -633,6 +607,20 @@ export default function StationDetailPage() {
           </div>
         </div>
 
+        {/* ── Nearby Landmarks ── */}
+        {nearbyLandmarks.length > 0 && (
+          <div className="mt-10 lg:mt-14 border-t border-[#2c3440] pt-6">
+            <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-[0.15em] mb-4">
+              Nearby Landmarks
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {nearbyLandmarks.map((landmark) => (
+                <LandmarkCard key={landmark.id} landmark={landmark} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Related Stations ── */}
         {relatedStations.length > 0 && (
           <div className="mt-10 lg:mt-14 border-t border-[#2c3440] pt-6">
@@ -640,42 +628,9 @@ export default function StationDetailPage() {
               Nearby Stations
             </h3>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {relatedStations.map((s) => {
-                const sRoutes = s.route_ids.map((rid) => getRouteById(rid)).filter(Boolean);
-                const sColor = sRoutes[0]?.route_color ?? "#456";
-                const sVisited = loggedStationIds.has(s.id);
-                return (
-                  <Link key={s.id} href={`/station/${s.id}`} className="flex-shrink-0 w-[110px] group">
-                    <div
-                      className="w-full aspect-[2/3] rounded shadow-lg relative overflow-hidden group-hover:ring-2 group-hover:ring-[#00e054] transition-all"
-                      style={{ backgroundColor: "#1c2228", border: `1px solid ${sColor}30` }}
-                    >
-                      <div className="absolute inset-0 opacity-[0.08]" style={{
-                        backgroundImage: `radial-gradient(circle at 50% 40%, ${sColor}30 0%, transparent 70%)`,
-                      }} />
-                      <div className="relative h-full flex flex-col items-center justify-center p-2 text-center">
-                        <MapPin className="w-5 h-5 mb-1 opacity-50" style={{ color: sColor }} />
-                        <div className="flex items-center gap-0.5 mt-1 flex-wrap justify-center">
-                          {sRoutes.slice(0, 3).map((r) => r && (
-                            <span key={r.id} className="text-[7px] font-bold px-1 py-0.5 rounded"
-                              style={{ backgroundColor: r.route_color + "25", color: r.route_color }}>
-                              {r.short_name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      {sVisited && (
-                        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#00e054] flex items-center justify-center">
-                          <Eye className="w-2.5 h-2.5 text-[#0a0c0f]" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-[#9ab] mt-1.5 leading-snug line-clamp-2 group-hover:text-white transition-colors">
-                      {s.name}
-                    </p>
-                  </Link>
-                );
-              })}
+              {relatedStations.map((s) => (
+                <PhotoStationCard key={s.id} station={s} size="sm" />
+              ))}
             </div>
           </div>
         )}

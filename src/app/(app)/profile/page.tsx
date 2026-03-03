@@ -24,6 +24,7 @@ import {
   getAgencyById,
   demoRoutes,
 } from "@/lib/demo-data";
+import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 
 /* ─────────────────────────────────────────────
    Letterboxd-style raw hex palette
@@ -215,57 +216,7 @@ function ReviewCard({ log }: { log: RouteLog }) {
   );
 }
 
-// ── Favorite route poster card (Letterboxd film poster style) ──
-function RoutePosterCard({
-  route,
-}: {
-  route: (typeof demoRoutes)[number];
-}) {
-  const agency = getAgencyById(route.agency_id);
-  return (
-    <Link
-      href={`/route/${route.id}`}
-      className="group block"
-    >
-      <div className="relative aspect-[2/3] rounded-sm overflow-hidden shadow-lg group-hover:ring-2 group-hover:ring-[#00e054] group-hover:-translate-y-1 transition-all duration-200">
-        {/* Background gradient using route color */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(160deg, ${route.route_color}cc 0%, ${route.route_color}40 50%, var(--rb-bg) 100%)`,
-          }}
-        />
-        {/* Subtle pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.03) 8px, rgba(255,255,255,0.03) 16px)",
-          }}
-        />
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full p-2 text-center">
-          <Train className="w-7 h-7 text-white/80 mb-1.5" />
-          <span
-            className="text-xl font-black text-white drop-shadow-md leading-none"
-            style={{ textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}
-          >
-            {route.short_name}
-          </span>
-          <span className="text-[9px] font-medium text-white/50 mt-1 uppercase tracking-wider">
-            {agency?.name?.replace(/\s*(Rail|Rapid Transit)/, "") ??
-              route.agency_id}
-          </span>
-        </div>
-        {/* Bottom border accent */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-0.5"
-          style={{ backgroundColor: route.route_color }}
-        />
-      </div>
-    </Link>
-  );
-}
+// ── RoutePosterCard replaced by PhotoRouteCard ──
 
 // ── Stats tab ──
 function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
@@ -749,9 +700,9 @@ export default function ProfilePage() {
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-3 pb-2 border-b border-[var(--rb-border)]">
           Favorite Routes
         </h2>
-        <div className="grid grid-cols-4 gap-2.5 max-w-[360px]">
+        <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
           {favoriteRoutes.map((route) => (
-            <RoutePosterCard key={route.id} route={route} />
+            <PhotoRouteCard key={route.id} route={route} size="sm" showActions={false} />
           ))}
         </div>
       </div>
