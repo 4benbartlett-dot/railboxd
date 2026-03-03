@@ -533,6 +533,43 @@ export default function ProfilePage() {
   const profile = useAppStore((s) => s.profile);
   const bucketList = useAppStore((s) => s.bucketList);
   const visitedLandmarkIds = useAppStore((s) => s.visitedLandmarkIds);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+
+  // Guest view: prompt to sign up
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[var(--rb-bg)] flex items-center justify-center pb-24 px-4">
+        <div className="text-center max-w-sm">
+          <div className="mx-auto mb-5 w-fit">
+            <RailboxdLogo size={56} animate={false} />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Your Transit Profile</h1>
+          <p className="text-sm text-[#9ab] mb-2">
+            Track your rides, rate routes, and build your transit diary.
+          </p>
+          <p className="text-xs text-[#456] mb-6">
+            Create an account to get started.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link
+              href="/signup"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all hover:brightness-110"
+              style={{ background: "#00e054", color: "#000" }}
+            >
+              Create Account
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-colors"
+              style={{ color: "#9ab", border: "1px solid var(--rb-border)" }}
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const sortedLogs = useMemo(
     () => [...routeLogs].sort((a, b) => b.date.localeCompare(a.date)),

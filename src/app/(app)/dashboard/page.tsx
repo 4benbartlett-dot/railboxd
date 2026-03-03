@@ -103,6 +103,8 @@ const heroRoutes = [
 function HeroBackdrop() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const profile = useAppStore((s) => s.profile);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const openAuthPrompt = useAppStore((s) => s.openAuthPrompt);
   const route = heroRoutes[currentIndex];
   const agency = getAgencyById(route.agency_id);
   const stations = getStationsForRoute(route.id);
@@ -154,20 +156,35 @@ function HeroBackdrop() {
           <div className="max-w-[950px] mx-auto flex items-center justify-between">
             <div>
               <h1 className="text-lg font-semibold text-white">
-                Welcome back, {profile.displayName.split(" ")[0]}.
+                {isAuthenticated
+                  ? `Welcome back, ${profile.displayName.split(" ")[0]}.`
+                  : "Welcome to Railboxd."}
               </h1>
               <p className="text-xs text-white/50 mt-0.5">
-                Here&apos;s what&apos;s happening on the rails.
+                {isAuthenticated
+                  ? "Here's what's happening on the rails."
+                  : "Discover and track your transit adventures."}
               </p>
             </div>
-            <Link
-              href="/search"
-              className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors bg-[var(--rb-accent)]/10 hover:bg-[var(--rb-accent)]/20 border border-[var(--rb-accent)]/30"
-              style={{ color: "#00e054" }}
-            >
-              <RailboxdLogo size={18} animate={false} />
-              Log a Ride
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/search"
+                className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors bg-[var(--rb-accent)]/10 hover:bg-[var(--rb-accent)]/20 border border-[var(--rb-accent)]/30"
+                style={{ color: "#00e054" }}
+              >
+                <RailboxdLogo size={18} animate={false} />
+                Log a Ride
+              </Link>
+            ) : (
+              <Link
+                href="/signup"
+                className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold transition-all hover:brightness-110"
+                style={{ background: "#00e054", color: "#000" }}
+              >
+                <RailboxdLogo size={18} animate={false} />
+                Sign Up
+              </Link>
+            )}
           </div>
         </div>
 

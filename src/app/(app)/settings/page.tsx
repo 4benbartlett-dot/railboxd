@@ -291,6 +291,40 @@ export default function SettingsPage() {
   /* ── Zustand store ── */
   const profile = useAppStore((s) => s.profile);
   const updateProfile = useAppStore((s) => s.updateProfile);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+
+  // Guest view: redirect to login
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[var(--rb-bg)] flex items-center justify-center pb-24 px-4">
+        <div className="text-center max-w-sm">
+          <div className="mx-auto mb-5 w-fit">
+            <RailboxdLogo size={56} animate={false} />
+          </div>
+          <h1 className="text-2xl font-bold text-[var(--rb-text-bright)] mb-2">Settings</h1>
+          <p className="text-sm text-[var(--rb-text-muted)] mb-6">
+            Sign in to manage your profile and preferences.
+          </p>
+          <div className="flex flex-col gap-3">
+            <a
+              href="/signup"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all hover:brightness-110"
+              style={{ background: "var(--rb-accent)", color: "#000" }}
+            >
+              Create Account
+            </a>
+            <a
+              href="/login"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-colors"
+              style={{ color: "var(--rb-text)", border: "1px solid var(--rb-border)" }}
+            >
+              Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ── Local state for profile text fields (saved on button click) ── */
   const [displayName, setDisplayName] = useState(profile.displayName);

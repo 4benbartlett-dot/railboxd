@@ -85,6 +85,19 @@ const defaultProfile: UserProfile = {
 };
 
 interface AppState {
+  // Auth state — whether user is signed in
+  isAuthenticated: boolean;
+  setAuthenticated: (v: boolean) => void;
+
+  // Auth prompt modal (shown when guests try protected actions)
+  authPromptOpen: boolean;
+  authPromptMessage: string | null;
+  openAuthPrompt: (message?: string) => void;
+  closeAuthPrompt: () => void;
+
+  // Gate helper: returns true if authenticated, shows prompt if not
+  requireAuth: (message?: string) => boolean;
+
   // Route logs — the core data model
   routeLogs: RouteLog[];
   addRouteLog: (log: RouteLog) => void;
@@ -154,6 +167,24 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
+      // Auth state
+      isAuthenticated: false,
+      setAuthenticated: (v: boolean) => set({ isAuthenticated: v }),
+
+      // Auth prompt modal
+      authPromptOpen: false,
+      authPromptMessage: null,
+      openAuthPrompt: (message?: string) =>
+        set({ authPromptOpen: true, authPromptMessage: message ?? null }),
+      closeAuthPrompt: () =>
+        set({ authPromptOpen: false, authPromptMessage: null }),
+
+      requireAuth: (message?: string) => {
+        if (get().isAuthenticated) return true;
+        get().openAuthPrompt(message);
+        return false;
+      },
+
       routeLogs: [],
       loggedRouteIds: new Set<string>(),
       loggedStationIds: new Set<string>(),
@@ -187,22 +218,26 @@ export const useAppStore = create<AppState>()(
 
       // Bucket list
       bucketList: [],
-      toggleBucketList: (routeId) =>
+      toggleBucketList: (routeId) => {
+        if (!get().requireAuth("Create an account to add routes to your watchlist.")) return;
         set((state) => ({
           bucketList: state.bucketList.includes(routeId)
             ? state.bucketList.filter((id) => id !== routeId)
             : [...state.bucketList, routeId],
-        })),
+        }));
+      },
       isBucketListed: (routeId) => get().bucketList.includes(routeId),
 
       // Favorites
       favorites: [],
-      toggleFavorite: (routeId) =>
+      toggleFavorite: (routeId) => {
+        if (!get().requireAuth("Create an account to favorite routes.")) return;
         set((state) => ({
           favorites: state.favorites.includes(routeId)
             ? state.favorites.filter((id) => id !== routeId)
             : [...state.favorites, routeId],
-        })),
+        }));
+      },
       isFavorited: (routeId) => get().favorites.includes(routeId),
 
       // Reviews
@@ -214,12 +249,14 @@ export const useAppStore = create<AppState>()(
 
       // Likes
       likedReviews: [],
-      toggleLike: (reviewId) =>
+      toggleLike: (reviewId) => {
+        if (!get().requireAuth("Create an account to like reviews.")) return;
         set((state) => ({
           likedReviews: state.likedReviews.includes(reviewId)
             ? state.likedReviews.filter((id) => id !== reviewId)
             : [...state.likedReviews, reviewId],
-        })),
+        }));
+      },
       isLiked: (reviewId) => get().likedReviews.includes(reviewId),
 
       // Landmark visits
@@ -251,23 +288,31 @@ export const useAppStore = create<AppState>()(
 
       // Landmark favorites
       landmarkFavorites: [],
-      toggleLandmarkFavorite: (landmarkId) =>
+      toggleLandmarkFavorite: (landmarkId) => {
+        if (!get().requireAuth("Create an account to bookmark landmarks.")) return;
         set((state) => ({
           landmarkFavorites: state.landmarkFavorites.includes(landmarkId)
             ? state.landmarkFavorites.filter((id) => id !== landmarkId)
             : [...state.landmarkFavorites, landmarkId],
-        })),
+        }));
+      },
       isLandmarkFavorited: (landmarkId) => get().landmarkFavorites.includes(landmarkId),
 
       logModalOpen: false,
       logModalRouteId: null,
-      openLogModal: (routeId) => set({ logModalOpen: true, logModalRouteId: routeId }),
+      openLogModal: (routeId) => {
+        if (!get().requireAuth("Create an account to log your rides.")) return;
+        set({ logModalOpen: true, logModalRouteId: routeId });
+      },
       closeLogModal: () => set({ logModalOpen: false, logModalRouteId: null }),
 
       // Landmark modal
       landmarkModalOpen: false,
       landmarkModalId: null,
-      openLandmarkModal: (landmarkId) => set({ landmarkModalOpen: true, landmarkModalId: landmarkId }),
+      openLandmarkModal: (landmarkId) => {
+        if (!get().requireAuth("Create an account to log landmark visits.")) return;
+        set({ landmarkModalOpen: true, landmarkModalId: landmarkId });
+      },
       closeLandmarkModal: () => set({ landmarkModalOpen: false, landmarkModalId: null }),
 
       activeTab: "dashboard",

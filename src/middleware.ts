@@ -52,10 +52,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Redirect root to map for authenticated users
-    if (user && request.nextUrl.pathname === "/") {
+    // Redirect root to explore (landing page for everyone)
+    if (request.nextUrl.pathname === "/") {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
+      url.pathname = user ? "/dashboard" : "/explore";
       return NextResponse.redirect(url);
     }
   } catch {
