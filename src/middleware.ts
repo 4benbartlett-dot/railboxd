@@ -48,14 +48,14 @@ export async function middleware(request: NextRequest) {
     // Redirect authenticated users away from auth pages
     if (user && isAuthPage) {
       const url = request.nextUrl.clone();
-      url.pathname = "/map";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
 
     // Redirect root to map for authenticated users
     if (user && request.nextUrl.pathname === "/") {
       const url = request.nextUrl.clone();
-      url.pathname = "/map";
+      url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
   } catch {

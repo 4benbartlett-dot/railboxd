@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { MapViewport } from "@/types";
 
 export interface RouteLog {
   id: string;
@@ -73,7 +72,7 @@ interface AppState {
   addRouteLog: (log: RouteLog) => void;
   removeRouteLog: (id: string) => void;
 
-  // Derived sets for map styling
+  // Derived sets for styling
   loggedRouteIds: Set<string>;
   loggedStationIds: Set<string>;
 
@@ -101,16 +100,6 @@ interface AppState {
   toggleLike: (reviewId: string) => void;
   isLiked: (reviewId: string) => boolean;
 
-  // Map — centered on California
-  mapViewport: MapViewport;
-  setMapViewport: (viewport: MapViewport) => void;
-
-  // Map selection
-  selectedRouteId: string | null;
-  setSelectedRouteId: (id: string | null) => void;
-  selectedStationId: string | null;
-  setSelectedStationId: (id: string | null) => void;
-
   // Log modal (triggered when user taps "Log this route")
   logModalOpen: boolean;
   logModalRouteId: string | null;
@@ -118,8 +107,8 @@ interface AppState {
   closeLogModal: () => void;
 
   // UI
-  activeTab: "map" | "dashboard" | "search" | "profile";
-  setActiveTab: (tab: "map" | "dashboard" | "search" | "profile") => void;
+  activeTab: "dashboard" | "search" | "explore" | "profile";
+  setActiveTab: (tab: "dashboard" | "search" | "explore" | "profile") => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -193,20 +182,12 @@ export const useAppStore = create<AppState>()(
         })),
       isLiked: (reviewId) => get().likedReviews.includes(reviewId),
 
-      mapViewport: { latitude: 36.7, longitude: -119.8, zoom: 6 },
-      setMapViewport: (viewport) => set({ mapViewport: viewport }),
-
-      selectedRouteId: null,
-      setSelectedRouteId: (id) => set({ selectedRouteId: id, selectedStationId: null }),
-      selectedStationId: null,
-      setSelectedStationId: (id) => set({ selectedStationId: id, selectedRouteId: null }),
-
       logModalOpen: false,
       logModalRouteId: null,
       openLogModal: (routeId) => set({ logModalOpen: true, logModalRouteId: routeId }),
       closeLogModal: () => set({ logModalOpen: false, logModalRouteId: null }),
 
-      activeTab: "map",
+      activeTab: "dashboard",
       setActiveTab: (tab) => set({ activeTab: tab }),
     }),
     {

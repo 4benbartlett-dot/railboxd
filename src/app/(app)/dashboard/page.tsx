@@ -308,7 +308,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <Link
-              href="/map"
+              href="/search"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors hover:bg-[#00e054]/10"
               style={{ color: "#00e054", border: "1px solid #00e05433" }}
             >
@@ -796,7 +796,7 @@ export default function DashboardPage() {
                     No rides logged yet.
                   </p>
                   <Link
-                    href="/map"
+                    href="/search"
                     className="text-[11px] font-semibold mt-1 inline-block"
                     style={{ color: "#00e054" }}
                   >
@@ -816,7 +816,7 @@ export default function DashboardPage() {
               </h3>
               <div className="flex flex-col gap-1.5">
                 {[
-                  { label: "Explore the Map", href: "/map", icon: MapPin },
+                  { label: "Explore Routes", href: "/explore", icon: MapPin },
                   { label: "Your Profile", href: "/profile", icon: Route },
                   { label: "Recent Rides", href: "/profile", icon: Clock },
                 ].map((link) => {

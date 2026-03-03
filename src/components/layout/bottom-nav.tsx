@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Map, Home, Search, User } from "lucide-react";
+import { Home, Search, Compass, User } from "lucide-react";
 
 const tabs = [
-  { href: "/map", label: "Map", icon: Map },
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/search", label: "Search", icon: Search },
+  { href: "/explore", label: "Explore", icon: Compass },
   { href: "/profile", label: "Profile", icon: User },
 ] as const;
 

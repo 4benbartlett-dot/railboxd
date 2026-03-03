@@ -82,8 +82,8 @@ export default function StationDetailPage() {
         <MapPin className="w-12 h-12 text-[#456] mb-4" />
         <h1 className="text-xl font-semibold text-white mb-2">Station Not Found</h1>
         <p className="text-sm text-[#678] mb-6">No station with ID &ldquo;{id}&rdquo;.</p>
-        <button onClick={() => router.push("/map")} className="px-4 py-2 rounded-lg text-sm font-medium bg-[#00e054] text-[#0a0c0f]">
-          Back to Map
+        <button onClick={() => router.push("/search")} className="px-4 py-2 rounded-lg text-sm font-medium bg-[#00e054] text-[#0a0c0f]">
+          Back to Search
         </button>
       </div>
     );

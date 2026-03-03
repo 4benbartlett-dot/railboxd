@@ -104,9 +104,3 @@ export interface BucketListItem {
 export type Visibility = "public" | "friends" | "private";
 
 export type TransitMode = "tram" | "subway" | "rail" | "bus" | "ferry" | "other";
-
-export interface MapViewport {
-  latitude: number;
-  longitude: number;
-  zoom: number;
-}

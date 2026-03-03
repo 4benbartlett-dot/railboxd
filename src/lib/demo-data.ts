@@ -315,42 +315,6 @@ export const demoStations: DemoStation[] = [
   ...(socalStations as DemoStation[]),
 ];
 
-// ===================== GeoJSON helpers =====================
-
-export function stationsToGeoJSON(stations: DemoStation[]) {
-  return {
-    type: "FeatureCollection" as const,
-    features: stations.map((s) => ({
-      type: "Feature" as const,
-      properties: {
-        id: s.id,
-        name: s.name,
-        route_ids: JSON.stringify(s.route_ids),
-        agency_id: s.agency_id,
-      },
-      geometry: { type: "Point" as const, coordinates: [s.lng, s.lat] },
-    })),
-  };
-}
-
-export function routesToGeoJSON(routes: DemoRoute[]) {
-  return {
-    type: "FeatureCollection" as const,
-    features: routes.map((r) => ({
-      type: "Feature" as const,
-      properties: {
-        id: r.id,
-        short_name: r.short_name,
-        long_name: r.long_name,
-        route_type: r.route_type,
-        route_color: r.route_color,
-        agency_id: r.agency_id,
-      },
-      geometry: { type: "LineString" as const, coordinates: r.coordinates },
-    })),
-  };
-}
-
 // Lookup helpers
 export function getRouteById(id: string) {
   return demoRoutes.find((r) => r.id === id) ?? null;

@@ -92,7 +92,7 @@ export default function SignupPage() {
         if (error.message.includes("fetch") || error.message.includes("URL")) {
           // Supabase not configured — demo mode
           await new Promise((resolve) => setTimeout(resolve, 500));
-          router.push("/map");
+          router.push("/dashboard");
           return;
         }
         setError(error.message);

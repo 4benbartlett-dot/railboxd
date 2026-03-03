@@ -824,12 +824,12 @@ export default function ProfilePage() {
                     Start logging rides to build your transit diary.
                   </p>
                   <Link
-                    href="/map"
+                    href="/search"
                     className="inline-flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-colors hover:brightness-110"
                     style={{ background: "#00e054", color: "var(--rb-bg)" }}
                   >
                     <Train className="w-4 h-4" />
-                    Explore the Map
+                    Browse Routes
                   </Link>
                 </div>
               ) : (
