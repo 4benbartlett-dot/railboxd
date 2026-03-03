@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --rb-bg: #0d1a0f;
+  --rb-bg-card: #142118;
+  --rb-bg-elevated: #1c2e22;
+  --rb-bg-hover: #243a2c;
+  --rb-accent: #00e054;
+  --rb-accent-hover: #00c94b;
+  --rb-text: #9ab;
+  --rb-text-bright: #ffffff;
+  --rb-text-muted: #678;
+  --rb-border: #243a2c;
+  --rb-danger: #ff4444;
+  --rb-warning: #ff9900;
+  --rb-map-fog: #1a2e1f;
+  --rb-map-bg: #060d08;
+  --rb-rating-star: #00e054;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--rb-bg);
+  --color-foreground: var(--rb-text-bright);
+  --color-card: var(--rb-bg-card);
+  --color-card-foreground: var(--rb-text);
+  --color-accent: var(--rb-accent);
+  --color-accent-foreground: var(--rb-bg);
+  --color-muted: var(--rb-bg-elevated);
+  --color-muted-foreground: var(--rb-text-muted);
+  --color-border: var(--rb-border);
+  --color-destructive: var(--rb-danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--rb-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--rb-bg);
+  color: var(--rb-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--rb-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rb-bg-elevated);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rb-bg-hover);
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mapbox overrides */
+.mapboxgl-map {
+  font-family: inherit;
+}
+.mapboxgl-ctrl-attrib {
+  display: none !important;
 }
