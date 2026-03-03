@@ -33,16 +33,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           setUserId(null);
         }
 
-        // Listen for auth changes (login/logout)
+        // Listen for explicit auth changes only (INITIAL_SESSION is handled above)
         const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(
           (event, session) => {
-            if (session?.user) {
+            if (event === "SIGNED_IN" && session?.user) {
               setAuthenticated(true);
               setUserId(session.user.id);
-              if (event === "SIGNED_IN") {
-                hydrateFromSupabase(session.user.id);
-              }
-            } else {
+              hydrateFromSupabase(session.user.id);
+            } else if (event === "SIGNED_OUT") {
               setAuthenticated(false);
               clearUserData();
             }

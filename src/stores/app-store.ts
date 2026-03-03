@@ -89,7 +89,7 @@ const defaultProfile: UserProfile = {
   displayName: "Transit Explorer",
   username: "explorer",
   bio: "Documenting every ride. One line at a time.",
-  homeCity: "San Francisco, CA",
+  homeCity: "San Diego, CA",
   avatarUrl: null,
   joinDate: new Date().toISOString().split("T")[0],
   privacyDefault: "public",
@@ -102,13 +102,20 @@ const defaultProfile: UserProfile = {
   notifyWeeklyDigest: true,
 };
 
-// Fire-and-forget Supabase sync with error toast
-function syncToSupabase(fn: () => Promise<void>) {
+// Fire-and-forget Supabase sync with error toast + optional rollback
+function syncToSupabase(fn: () => Promise<void>, rollback?: () => void) {
   fn().catch((err) => {
     console.error("Supabase sync error:", err);
-    toast.error("Failed to sync — your data is saved locally.", {
-      description: "It will sync next time you sign in.",
-    });
+    if (rollback) {
+      rollback();
+      toast.error("Network error — changes reverted.", {
+        description: "Check your connection and try again.",
+      });
+    } else {
+      toast.error("Failed to sync — your data is saved locally.", {
+        description: "It will sync next time you sign in.",
+      });
+    }
   });
 }
 
@@ -280,6 +287,7 @@ export const useAppStore = create<AppState>()(
       loggedStationIds: new Set<string>(),
 
       addRouteLog: (log) => {
+        const prev = get().routeLogs;
         set((state) => {
           const routeLogs = [...state.routeLogs, log];
           return {
@@ -291,11 +299,19 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() => insertRouteLog(supabase, userId, log));
+          syncToSupabase(
+            () => insertRouteLog(supabase, userId, log),
+            () => set({
+              routeLogs: prev,
+              loggedRouteIds: deriveLoggedRouteIds(prev),
+              loggedStationIds: deriveLoggedStationIds(prev),
+            })
+          );
         }
       },
 
       removeRouteLog: (id) => {
+        const prev = get().routeLogs;
         set((state) => {
           const routeLogs = state.routeLogs.filter((l) => l.id !== id);
           return {
@@ -307,20 +323,31 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() => apiDeleteRouteLog(supabase, id));
+          syncToSupabase(
+            () => apiDeleteRouteLog(supabase, id),
+            () => set({
+              routeLogs: prev,
+              loggedRouteIds: deriveLoggedRouteIds(prev),
+              loggedStationIds: deriveLoggedStationIds(prev),
+            })
+          );
         }
       },
 
       // Profile
       profile: { ...defaultProfile },
       updateProfile: (updates) => {
+        const prev = get().profile;
         set((state) => ({
           profile: { ...state.profile, ...updates },
         }));
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() => upsertProfile(supabase, userId, updates));
+          syncToSupabase(
+            () => upsertProfile(supabase, userId, updates),
+            () => set({ profile: prev })
+          );
         }
       },
 
@@ -328,7 +355,8 @@ export const useAppStore = create<AppState>()(
       bucketList: [],
       toggleBucketList: (routeId) => {
         if (!get().requireAuth("Create an account to add routes to your watchlist.")) return;
-        const removing = get().bucketList.includes(routeId);
+        const prev = get().bucketList;
+        const removing = prev.includes(routeId);
         set((state) => ({
           bucketList: removing
             ? state.bucketList.filter((id) => id !== routeId)
@@ -337,10 +365,11 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() =>
-            removing
+          syncToSupabase(
+            () => removing
               ? deleteBucketListItem(supabase, userId, routeId)
-              : insertBucketListItem(supabase, userId, routeId)
+              : insertBucketListItem(supabase, userId, routeId),
+            () => set({ bucketList: prev })
           );
         }
       },
@@ -350,7 +379,8 @@ export const useAppStore = create<AppState>()(
       favorites: [],
       toggleFavorite: (routeId) => {
         if (!get().requireAuth("Create an account to favorite routes.")) return;
-        const removing = get().favorites.includes(routeId);
+        const prev = get().favorites;
+        const removing = prev.includes(routeId);
         set((state) => ({
           favorites: removing
             ? state.favorites.filter((id) => id !== routeId)
@@ -359,10 +389,11 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() =>
-            removing
+          syncToSupabase(
+            () => removing
               ? deleteFavorite(supabase, userId, routeId)
-              : insertFavorite(supabase, userId, routeId)
+              : insertFavorite(supabase, userId, routeId),
+            () => set({ favorites: prev })
           );
         }
       },
@@ -371,19 +402,27 @@ export const useAppStore = create<AppState>()(
       // Reviews
       reviews: [],
       addReview: (review) => {
+        const prev = get().reviews;
         set((state) => ({ reviews: [...state.reviews, review] }));
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() => insertReview(supabase, userId, review));
+          syncToSupabase(
+            () => insertReview(supabase, userId, review),
+            () => set({ reviews: prev })
+          );
         }
       },
       removeReview: (id) => {
+        const prev = get().reviews;
         set((state) => ({ reviews: state.reviews.filter((r) => r.id !== id) }));
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() => apiDeleteReview(supabase, id));
+          syncToSupabase(
+            () => apiDeleteReview(supabase, id),
+            () => set({ reviews: prev })
+          );
         }
       },
 
@@ -391,7 +430,8 @@ export const useAppStore = create<AppState>()(
       likedReviews: [],
       toggleLike: (reviewId) => {
         if (!get().requireAuth("Create an account to like reviews.")) return;
-        const removing = get().likedReviews.includes(reviewId);
+        const prev = get().likedReviews;
+        const removing = prev.includes(reviewId);
         set((state) => ({
           likedReviews: removing
             ? state.likedReviews.filter((id) => id !== reviewId)
@@ -400,10 +440,11 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() =>
-            removing
+          syncToSupabase(
+            () => removing
               ? deleteLike(supabase, userId, reviewId)
-              : insertLike(supabase, userId, reviewId)
+              : insertLike(supabase, userId, reviewId),
+            () => set({ likedReviews: prev })
           );
         }
       },
@@ -452,7 +493,8 @@ export const useAppStore = create<AppState>()(
       riddenRouteIds: [],
       toggleRidden: (routeId) => {
         if (!get().requireAuth("Create an account to mark rides.")) return;
-        const removing = get().riddenRouteIds.includes(routeId);
+        const prev = get().riddenRouteIds;
+        const removing = prev.includes(routeId);
         set((state) => ({
           riddenRouteIds: removing
             ? state.riddenRouteIds.filter((id) => id !== routeId)
@@ -461,10 +503,11 @@ export const useAppStore = create<AppState>()(
         const { userId } = get();
         if (userId) {
           const supabase = createClient();
-          syncToSupabase(() =>
-            removing
+          syncToSupabase(
+            () => removing
               ? deleteRiddenRoute(supabase, userId, routeId)
-              : insertRiddenRoute(supabase, userId, routeId)
+              : insertRiddenRoute(supabase, userId, routeId),
+            () => set({ riddenRouteIds: prev })
           );
         }
       },
