@@ -14,7 +14,6 @@ import {
   BarChart3,
   Bookmark,
   Heart,
-  Eye,
   ChevronRight,
   Landmark,
 } from "lucide-react";
@@ -29,9 +28,11 @@ import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 import { RailboxdLogo } from "@/components/graphics/railboxd-logo";
 
 /* ─────────────────────────────────────────────
-   Letterboxd-style raw hex palette
-   bg=var(--rb-bg)  text=#9ab  muted=#678
-   borders=var(--rb-border)  accent=#00e054
+   Letterboxd-style palette — uses CSS variables
+   bg=var(--rb-bg)  text=var(--rb-text)
+   muted=var(--rb-text-muted)  dim=var(--rb-text-dim)
+   bright=var(--rb-text-bright)  accent=var(--rb-accent)
+   borders=var(--rb-border)
    ───────────────────────────────────────────── */
 
 type ProfileTab = "diary" | "reviews" | "stats" | "bucket-list";
@@ -50,8 +51,8 @@ function StarRating({
         <Star
           key={i}
           style={{ width: size, height: size }}
-          fill={i <= rating ? "#00e054" : "none"}
-          stroke={i <= rating ? "#00e054" : "#456"}
+          fill={i <= rating ? "var(--rb-accent)" : "none"}
+          stroke={i <= rating ? "var(--rb-accent)" : "var(--rb-text-dim)"}
           strokeWidth={1.5}
         />
       ))}
@@ -116,13 +117,13 @@ function DiaryEntry({
     <div className="flex gap-0 border-b border-[var(--rb-border)] hover:bg-[var(--rb-bg-card)] transition-colors">
       {/* Date column */}
       <div className="flex-shrink-0 w-[72px] py-3 px-2 text-center border-r border-[var(--rb-border)]">
-        <div className="text-[10px] font-semibold tracking-wider text-[#456]">
+        <div className="text-[10px] font-semibold tracking-wider text-[var(--rb-text-dim)]">
           {month}
         </div>
-        <div className="text-xl font-bold text-[#fff] leading-tight">
+        <div className="text-xl font-bold text-[var(--rb-text-bright)] leading-tight">
           {day}
         </div>
-        <div className="text-[10px] text-[#456]">{weekday}</div>
+        <div className="text-[10px] text-[var(--rb-text-dim)]">{weekday}</div>
       </div>
 
       {/* Content */}
@@ -139,12 +140,12 @@ function DiaryEntry({
           <div className="flex items-center gap-2 flex-wrap">
             <RouteBadge routeId={log.routeId} />
             {route && (
-              <span className="text-[13px] text-[#fff] font-medium truncate">
+              <span className="text-[13px] text-[var(--rb-text-bright)] font-medium truncate">
                 {route.long_name}
               </span>
             )}
           </div>
-          <div className="text-xs text-[#456] mt-0.5">
+          <div className="text-xs text-[var(--rb-text-dim)] mt-0.5">
             {startStation?.name ?? "Unknown"} &rarr;{" "}
             {endStation?.name ?? "Unknown"}
           </div>
@@ -153,7 +154,7 @@ function DiaryEntry({
         {/* Rating + notes indicator */}
         <div className="flex-shrink-0 flex items-center gap-2">
           {log.rating != null && <StarRating rating={log.rating} size={12} />}
-          {log.notes && <BookOpen className="w-3.5 h-3.5 text-[#456]" />}
+          {log.notes && <BookOpen className="w-3.5 h-3.5 text-[var(--rb-text-dim)]" />}
         </div>
       </div>
     </div>
@@ -174,7 +175,7 @@ function ReviewCard({ log }: { log: RouteLog }) {
           className="shrink-0 w-[50px] aspect-[2/3] rounded-sm flex flex-col items-center justify-center shadow-md"
           style={{
             background: route.route_color,
-            color: route.route_color === "#FFD800" ? "#000" : "#fff",
+            color: route.route_color === "#FFD800" ? "#000" : "var(--rb-text-bright)",
           }}
         >
           <Train className="w-3.5 h-3.5 opacity-70" />
@@ -190,7 +191,7 @@ function ReviewCard({ log }: { log: RouteLog }) {
           <div>
             <Link
               href={`/route/${log.routeId}`}
-              className="text-[13px] font-bold text-[#fff] hover:text-[#00e054] transition-colors"
+              className="text-[13px] font-bold text-[var(--rb-text-bright)] hover:text-[var(--rb-accent)] transition-colors"
             >
               {route?.long_name ?? "Unknown"}
             </Link>
@@ -198,7 +199,7 @@ function ReviewCard({ log }: { log: RouteLog }) {
           {log.rating != null && <StarRating rating={log.rating} size={11} />}
         </div>
 
-        <div className="text-[11px] text-[#456] mb-2 flex items-center gap-1">
+        <div className="text-[11px] text-[var(--rb-text-dim)] mb-2 flex items-center gap-1">
           <Train className="w-3 h-3" />
           {startStation?.name ?? "Unknown"} &rarr;{" "}
           {endStation?.name ?? "Unknown"}
@@ -206,12 +207,12 @@ function ReviewCard({ log }: { log: RouteLog }) {
           {formatDate(log.date)}
         </div>
 
-        <p className="text-[13px] text-[#9ab] leading-relaxed">{log.notes}</p>
+        <p className="text-[13px] text-[var(--rb-text)] leading-relaxed">{log.notes}</p>
 
         {/* Like button row */}
         <div className="flex items-center gap-1 mt-2">
-          <Heart className="w-3 h-3 text-[#456]" />
-          <span className="text-[10px] text-[#456]">Like this review</span>
+          <Heart className="w-3 h-3 text-[var(--rb-text-dim)]" />
+          <span className="text-[10px] text-[var(--rb-text-dim)]">Like this review</span>
         </div>
       </div>
     </div>
@@ -291,7 +292,7 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
 
   if (routeLogs.length === 0) {
     return (
-      <div className="text-center py-16 text-[#678]">
+      <div className="text-center py-16 text-[var(--rb-text-muted)]">
         <div className="mx-auto mb-3 w-fit opacity-40">
           <RailboxdLogo size={40} animate={false} />
         </div>
@@ -305,11 +306,11 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
       {/* Rating Distribution (Letterboxd-style bar chart) */}
       {stats.totalRated > 0 && (
         <div>
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-3 pb-2 border-b border-[var(--rb-border)]">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--rb-text-muted)] mb-3 pb-2 border-b border-[var(--rb-border)]">
             Ratings
           </h3>
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-3xl font-bold text-[#00e054]">
+            <span className="text-3xl font-bold text-[var(--rb-accent)]">
               {stats.avgRating.toFixed(1)}
             </span>
             <div>
@@ -317,7 +318,7 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
                 rating={Math.round(stats.avgRating)}
                 size={14}
               />
-              <span className="text-[11px] text-[#456] block mt-0.5">
+              <span className="text-[11px] text-[var(--rb-text-dim)] block mt-0.5">
                 {stats.totalRated} rated ride
                 {stats.totalRated !== 1 ? "s" : ""}
               </span>
@@ -332,7 +333,7 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
               >
                 <motion.div
                   className="w-full rounded-t-sm"
-                  style={{ backgroundColor: "#00e054" }}
+                  style={{ backgroundColor: "var(--rb-accent)" }}
                   initial={{ height: 0 }}
                   animate={{
                     height: `${(stats.ratingDist[r] / stats.maxRatingCount) * 100}%`,
@@ -344,8 +345,8 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
                     <Star
                       key={i}
                       className="w-2 h-2"
-                      fill="#00e054"
-                      stroke="#00e054"
+                      fill="var(--rb-accent)"
+                      stroke="var(--rb-accent)"
                     />
                   ))}
                 </div>
@@ -358,7 +359,7 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
       {/* Favorite Route */}
       {stats.favoriteRoute && (
         <div>
-          <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-3 pb-2 border-b border-[var(--rb-border)]">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--rb-text-muted)] mb-3 pb-2 border-b border-[var(--rb-border)]">
             Most Ridden Route
           </h3>
           <Link
@@ -366,28 +367,28 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
             className="flex items-center gap-3 group"
           >
             <div
-              className="flex-shrink-0 w-10 h-10 rounded-sm flex items-center justify-center text-sm font-black text-white group-hover:ring-1 group-hover:ring-[#00e054] transition-all"
+              className="flex-shrink-0 w-10 h-10 rounded-sm flex items-center justify-center text-sm font-black text-white group-hover:ring-1 group-hover:ring-[var(--rb-accent)] transition-all"
               style={{ backgroundColor: stats.favoriteRoute.route_color }}
             >
               {stats.favoriteRoute.short_name}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[13px] text-[#fff] font-medium block truncate group-hover:text-[#00e054] transition-colors">
+              <span className="text-[13px] text-[var(--rb-text-bright)] font-medium block truncate group-hover:text-[var(--rb-accent)] transition-colors">
                 {stats.favoriteRoute.long_name}
               </span>
-              <span className="text-xs text-[#456]">
+              <span className="text-xs text-[var(--rb-text-dim)]">
                 {stats.favoriteCount} ride
                 {stats.favoriteCount !== 1 ? "s" : ""}
               </span>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#456]" />
+            <ChevronRight className="w-4 h-4 text-[var(--rb-text-dim)]" />
           </Link>
         </div>
       )}
 
       {/* Rides Per Month */}
       <div>
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-4 pb-2 border-b border-[var(--rb-border)]">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--rb-text-muted)] mb-4 pb-2 border-b border-[var(--rb-border)]">
           Rides Per Month
         </h3>
         <div className="flex items-end gap-1.5 h-28">
@@ -396,19 +397,19 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
               key={month}
               className="flex-1 flex flex-col items-center justify-end h-full gap-1"
             >
-              <span className="text-[10px] font-semibold text-[#fff]">
+              <span className="text-[10px] font-semibold text-[var(--rb-text-bright)]">
                 {count}
               </span>
               <motion.div
                 className="w-full rounded-t-sm"
-                style={{ backgroundColor: "#00e054" }}
+                style={{ backgroundColor: "var(--rb-accent)" }}
                 initial={{ height: 0 }}
                 animate={{
                   height: `${(count / stats.maxMonth) * 100}%`,
                 }}
                 transition={{ duration: 0.6, ease: "easeOut" as const }}
               />
-              <span className="text-[9px] text-[#456] whitespace-nowrap">
+              <span className="text-[9px] text-[var(--rb-text-dim)] whitespace-nowrap">
                 {month.split(" ")[0]}
               </span>
             </div>
@@ -418,7 +419,7 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
 
       {/* Routes by Agency */}
       <div>
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-3 pb-2 border-b border-[var(--rb-border)]">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--rb-text-muted)] mb-3 pb-2 border-b border-[var(--rb-border)]">
           Routes by Agency
         </h3>
         <div className="space-y-3">
@@ -427,15 +428,15 @@ function StatsTab({ routeLogs }: { routeLogs: RouteLog[] }) {
             .map(([name, count]) => (
               <div key={name}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-[#9ab]">{name}</span>
-                  <span className="text-xs font-semibold text-[#fff]">
+                  <span className="text-xs text-[var(--rb-text)]">{name}</span>
+                  <span className="text-xs font-semibold text-[var(--rb-text-bright)]">
                     {count}
                   </span>
                 </div>
                 <div className="h-1.5 bg-[var(--rb-border)] rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: "#00e054" }}
+                    style={{ backgroundColor: "var(--rb-accent)" }}
                     initial={{ width: 0 }}
                     animate={{
                       width: `${(count / stats.maxAgency) * 100}%`,
@@ -466,14 +467,14 @@ function BucketListTab({ bucketList }: { bucketList: string[] }) {
         <div className="mx-auto mb-3 w-fit opacity-40">
           <RailboxdLogo size={40} animate={false} />
         </div>
-        <p className="text-[#678] text-sm mb-1">Your watchlist is empty</p>
-        <p className="text-[#456] text-xs max-w-xs mx-auto mb-4">
+        <p className="text-[var(--rb-text-muted)] text-sm mb-1">Your watchlist is empty</p>
+        <p className="text-[var(--rb-text-dim)] text-xs max-w-xs mx-auto mb-4">
           Bookmark routes you want to ride from route detail pages.
         </p>
         <Link
           href="/search"
           className="inline-flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-colors hover:brightness-110"
-          style={{ background: "#00e054", color: "var(--rb-bg)" }}
+          style={{ background: "var(--rb-accent)", color: "var(--rb-bg)" }}
         >
           <RailboxdLogo size={16} animate={false} />
           Browse Routes
@@ -484,7 +485,7 @@ function BucketListTab({ bucketList }: { bucketList: string[] }) {
 
   return (
     <div className="space-y-2">
-      <p className="text-[11px] text-[#456] mb-4">
+      <p className="text-[11px] text-[var(--rb-text-dim)] mb-4">
         {bucketRoutes.length} route{bucketRoutes.length !== 1 ? "s" : ""} on
         your watchlist
       </p>
@@ -497,22 +498,22 @@ function BucketListTab({ bucketList }: { bucketList: string[] }) {
             className="flex items-center gap-3 py-2.5 border-b border-[var(--rb-border)]/60 last:border-b-0 group"
           >
             <div
-              className="flex-shrink-0 w-9 h-9 rounded-sm flex items-center justify-center text-xs font-black text-white group-hover:ring-1 group-hover:ring-[#00e054] transition-all"
+              className="flex-shrink-0 w-9 h-9 rounded-sm flex items-center justify-center text-xs font-black text-white group-hover:ring-1 group-hover:ring-[var(--rb-accent)] transition-all"
               style={{ backgroundColor: route.route_color }}
             >
               {route.short_name}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[13px] text-[#fff] font-medium block truncate group-hover:text-[#00e054] transition-colors">
+              <span className="text-[13px] text-[var(--rb-text-bright)] font-medium block truncate group-hover:text-[var(--rb-accent)] transition-colors">
                 {route.long_name}
               </span>
-              <span className="text-[11px] text-[#456]">
+              <span className="text-[11px] text-[var(--rb-text-dim)]">
                 {agency?.name ?? route.agency_id}
               </span>
             </div>
             <Bookmark
-              className="w-4 h-4 text-[#00e054] flex-shrink-0"
-              fill="#00e054"
+              className="w-4 h-4 text-[var(--rb-accent)] flex-shrink-0"
+              fill="var(--rb-accent)"
             />
           </Link>
         );
@@ -529,6 +530,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("diary");
   const routeLogs = useAppStore((s) => s.routeLogs);
   const loggedRouteIds = useAppStore((s) => s.loggedRouteIds);
+  const riddenRouteIds = useAppStore((s) => s.riddenRouteIds);
   const loggedStationIds = useAppStore((s) => s.loggedStationIds);
   const profile = useAppStore((s) => s.profile);
   const bucketList = useAppStore((s) => s.bucketList);
@@ -544,24 +546,24 @@ export default function ProfilePage() {
             <RailboxdLogo size={56} animate={false} />
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Your Transit Profile</h1>
-          <p className="text-sm text-[#9ab] mb-2">
+          <p className="text-sm text-[var(--rb-text)] mb-2">
             Track your rides, rate routes, and build your transit diary.
           </p>
-          <p className="text-xs text-[#456] mb-6">
+          <p className="text-xs text-[var(--rb-text-dim)] mb-6">
             Create an account to get started.
           </p>
           <div className="flex flex-col gap-3">
             <Link
               href="/signup"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all hover:brightness-110"
-              style={{ background: "#00e054", color: "#000" }}
+              style={{ background: "var(--rb-accent)", color: "#000" }}
             >
               Create Account
             </Link>
             <Link
               href="/login"
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-colors"
-              style={{ color: "#9ab", border: "1px solid var(--rb-border)" }}
+              style={{ color: "var(--rb-text)", border: "1px solid var(--rb-border)" }}
             >
               Sign In
             </Link>
@@ -645,7 +647,7 @@ export default function ProfilePage() {
           className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 25% 50%, #00e054 1px, transparent 1px)",
+              "radial-gradient(circle at 25% 50%, var(--rb-accent) 1px, transparent 1px)",
             backgroundSize: "30px 30px",
           }}
         />
@@ -666,22 +668,22 @@ export default function ProfilePage() {
             {profile.avatarUrl ? (
               <img src={profile.avatarUrl} alt={profile.displayName} className="w-full h-full object-cover" />
             ) : (
-              <User className="w-10 h-10 text-[#678]" />
+              <User className="w-10 h-10 text-[var(--rb-text-muted)]" />
             )}
           </div>
 
           {/* Name + handle */}
           <div className="flex-1 min-w-0 pb-1">
-            <h1 className="text-2xl font-bold text-[#fff] leading-tight tracking-tight">
+            <h1 className="text-2xl font-bold text-[var(--rb-text-bright)] leading-tight tracking-tight">
               {profile.displayName}
             </h1>
-            <p className="text-sm text-[#00e054] font-medium">@{profile.username}</p>
+            <p className="text-sm text-[var(--rb-accent)] font-medium">@{profile.username}</p>
           </div>
 
           {/* Edit profile button */}
           <Link
             href="/settings"
-            className="shrink-0 px-4 py-1.5 rounded text-xs font-semibold text-[#9ab] hover:text-[#fff] transition-colors"
+            className="shrink-0 px-4 py-1.5 rounded text-xs font-semibold text-[var(--rb-text)] hover:text-[var(--rb-text-bright)] transition-colors"
             style={{ border: "1px solid var(--rb-border)" }}
           >
             Edit Profile
@@ -690,10 +692,10 @@ export default function ProfilePage() {
 
         {/* Bio + location */}
         <div className="mt-3 ml-[116px]">
-          <p className="text-[13px] text-[#9ab]">
+          <p className="text-[13px] text-[var(--rb-text)]">
             {profile.bio || "No bio yet."}
           </p>
-          <div className="flex items-center gap-4 mt-1.5 text-[11px] text-[#456]">
+          <div className="flex items-center gap-4 mt-1.5 text-[11px] text-[var(--rb-text-dim)]">
             {profile.homeCity && (
               <span className="inline-flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
@@ -712,7 +714,7 @@ export default function ProfilePage() {
       <div className="max-w-[950px] mx-auto px-6 mt-6">
         <div className="flex items-center gap-6 py-3 border-t border-b border-[var(--rb-border)]">
           {[
-            { label: "Routes", value: loggedRouteIds.size },
+            { label: "Routes", value: new Set([...loggedRouteIds, ...riddenRouteIds]).size },
             { label: "Stations", value: loggedStationIds.size },
             { label: "Landmarks", value: visitedLandmarkIds.size },
             { label: "Rides", value: routeLogs.length },
@@ -722,10 +724,10 @@ export default function ProfilePage() {
               key={stat.label}
               className="flex items-center gap-1.5 group"
             >
-              <span className="text-sm font-bold text-[#fff] group-hover:text-[#00e054] transition-colors tabular-nums">
+              <span className="text-sm font-bold text-[var(--rb-text-bright)] group-hover:text-[var(--rb-accent)] transition-colors tabular-nums">
                 {stat.value}
               </span>
-              <span className="text-[11px] uppercase tracking-wider text-[#456]">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--rb-text-dim)]">
                 {stat.label}
               </span>
             </button>
@@ -735,7 +737,7 @@ export default function ProfilePage() {
 
       {/* ── Favorite Routes (poster row, Letterboxd-style) ── */}
       <div className="max-w-[950px] mx-auto px-6 mt-6">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#678] mb-3 pb-2 border-b border-[var(--rb-border)]">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--rb-text-muted)] mb-3 pb-2 border-b border-[var(--rb-border)]">
           Favorite Routes
         </h2>
         <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
@@ -757,7 +759,7 @@ export default function ProfilePage() {
               <span
                 className="text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors"
                 style={{
-                  color: activeTab === tab.key ? "#fff" : "#678",
+                  color: activeTab === tab.key ? "var(--rb-text-bright)" : "var(--rb-text-muted)",
                 }}
               >
                 {tab.label}
@@ -765,7 +767,7 @@ export default function ProfilePage() {
                   <span
                     className="ml-1.5 text-[10px]"
                     style={{
-                      color: activeTab === tab.key ? "#9ab" : "#456",
+                      color: activeTab === tab.key ? "var(--rb-text)" : "var(--rb-text-dim)",
                     }}
                   >
                     {tab.count}
@@ -776,7 +778,7 @@ export default function ProfilePage() {
                 <motion.div
                   layoutId="ptab"
                   className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full"
-                  style={{ backgroundColor: "#00e054" }}
+                  style={{ backgroundColor: "var(--rb-accent)" }}
                   transition={{
                     type: "spring",
                     stiffness: 400,
@@ -806,16 +808,16 @@ export default function ProfilePage() {
                   <div className="mx-auto mb-4 w-fit opacity-50">
                     <RailboxdLogo size={48} animate={false} />
                   </div>
-                  <p className="text-[#678] text-sm mb-1">
+                  <p className="text-[var(--rb-text-muted)] text-sm mb-1">
                     Your diary is empty
                   </p>
-                  <p className="text-[#456] text-xs max-w-xs mx-auto mb-4">
+                  <p className="text-[var(--rb-text-dim)] text-xs max-w-xs mx-auto mb-4">
                     Start logging rides to build your transit diary.
                   </p>
                   <Link
                     href="/search"
                     className="inline-flex items-center gap-2 px-5 py-2 rounded text-sm font-bold transition-colors hover:brightness-110"
-                    style={{ background: "#00e054", color: "var(--rb-bg)" }}
+                    style={{ background: "var(--rb-accent)", color: "var(--rb-bg)" }}
                   >
                     <RailboxdLogo size={16} animate={false} />
                     Browse Routes
@@ -843,9 +845,9 @@ export default function ProfilePage() {
             >
               {reviewLogs.length === 0 ? (
                 <div className="text-center py-16">
-                  <BookOpen className="w-10 h-10 mx-auto mb-3 text-[#456]" />
-                  <p className="text-[#678] text-sm mb-1">No reviews yet</p>
-                  <p className="text-[#456] text-xs">
+                  <BookOpen className="w-10 h-10 mx-auto mb-3 text-[var(--rb-text-dim)]" />
+                  <p className="text-[var(--rb-text-muted)] text-sm mb-1">No reviews yet</p>
+                  <p className="text-[var(--rb-text-dim)] text-xs">
                     Add notes to your rides to see them here.
                   </p>
                 </div>

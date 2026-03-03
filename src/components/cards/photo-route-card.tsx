@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { Eye, Heart, Sparkles } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
+import { RiddenToggle } from "@/components/log/ridden-toggle";
 import { useLazyPlacePhoto } from "@/hooks/use-lazy-place-photo";
 import type { DemoRoute } from "@/lib/demo-data";
 import { getAgencyById, getStationsForRoute } from "@/lib/demo-data";
@@ -15,6 +17,7 @@ interface PhotoRouteCardProps {
   isNew?: boolean;
   showActions?: boolean;
   className?: string;
+  priority?: boolean;
 }
 
 const sizeStyles = {
@@ -29,6 +32,7 @@ export function PhotoRouteCard({
   isNew = false,
   showActions = true,
   className = "",
+  priority = false,
 }: PhotoRouteCardProps) {
   const stations = getStationsForRoute(route.id);
   const firstStation = stations[0];
@@ -40,17 +44,15 @@ export function PhotoRouteCard({
     firstStation?.lat,
     firstStation?.lng
   );
-  const loggedRouteIds = useAppStore((s) => s.loggedRouteIds);
+  const isRidden = useAppStore((s) => s.isRidden(route.id));
   const isFavorited = useAppStore((s) => s.isFavorited(route.id));
-  const isLogged = loggedRouteIds.has(route.id);
 
-  const textColor =
-    route.route_color === "#FFD800" || route.route_color === "#FFFF33"
-      ? "#000"
-      : "#fff";
+  const isDarkText =
+    route.route_color === "#FFD800" || route.route_color === "#FFFF33";
+  const textColor = isDarkText ? "var(--rb-text-dim)" : "var(--rb-text-bright)";
 
   return (
-    <Link href={`/route/${route.id}`} className={`block ${className}`}>
+    <Link href={`/route/${route.id}`} className={`block ${className}`} aria-label={`View route ${route.short_name}: ${route.long_name}`}>
       <motion.div
         ref={ref}
         whileHover={{ scale: 1.03, y: -4 }}
@@ -62,11 +64,14 @@ export function PhotoRouteCard({
       >
         {/* Photo or fallback gradient */}
         {heroUrl ? (
-          <img
+          <Image
             src={heroUrl}
-            alt={route.long_name}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
+            alt={`Photo of ${route.long_name} route`}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
+            unoptimized
           />
         ) : (
           <div
@@ -90,7 +95,7 @@ export function PhotoRouteCard({
         {/* NEW badge */}
         {autoNew && (
           <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-            style={{ background: "var(--rb-new-badge)", color: "#000" }}>
+            style={{ background: "var(--rb-new-badge)", color: "var(--rb-text-dim)" }}>
             <Sparkles className="w-2.5 h-2.5" />
             New
           </div>
@@ -131,12 +136,7 @@ export function PhotoRouteCard({
           {/* Action indicators */}
           {showActions && size !== "sm" && (
             <div className="flex items-center gap-2 mt-1.5">
-              {isLogged && (
-                <div className="flex items-center gap-0.5 text-[var(--rb-accent)]">
-                  <Eye className="w-3 h-3" />
-                  <span className="text-[8px] font-medium">Ridden</span>
-                </div>
-              )}
+              <RiddenToggle routeId={route.id} size="sm" />
               {isFavorited && (
                 <div className="flex items-center gap-0.5 text-red-400">
                   <Heart className="w-3 h-3 fill-current" />

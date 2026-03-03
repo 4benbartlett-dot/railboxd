@@ -147,6 +147,11 @@ interface AppState {
   toggleLandmarkFavorite: (landmarkId: string) => void;
   isLandmarkFavorited: (landmarkId: string) => boolean;
 
+  // Quick-mark ridden (separate from full log)
+  riddenRouteIds: string[];
+  toggleRidden: (routeId: string) => void;
+  isRidden: (routeId: string) => boolean;
+
   // Log modal (triggered when user taps "Log this route")
   logModalOpen: boolean;
   logModalRouteId: string | null;
@@ -298,6 +303,19 @@ export const useAppStore = create<AppState>()(
       },
       isLandmarkFavorited: (landmarkId) => get().landmarkFavorites.includes(landmarkId),
 
+      // Quick-mark ridden
+      riddenRouteIds: [],
+      toggleRidden: (routeId) => {
+        if (!get().requireAuth("Create an account to mark rides.")) return;
+        set((state) => ({
+          riddenRouteIds: state.riddenRouteIds.includes(routeId)
+            ? state.riddenRouteIds.filter((id) => id !== routeId)
+            : [...state.riddenRouteIds, routeId],
+        }));
+      },
+      isRidden: (routeId) =>
+        get().riddenRouteIds.includes(routeId) || get().loggedRouteIds.has(routeId),
+
       logModalOpen: false,
       logModalRouteId: null,
       openLogModal: (routeId) => {
@@ -323,6 +341,7 @@ export const useAppStore = create<AppState>()(
       // Persist all user data
       partialize: (state) => ({
         routeLogs: state.routeLogs,
+        riddenRouteIds: state.riddenRouteIds,
         profile: state.profile,
         bucketList: state.bucketList,
         favorites: state.favorites,

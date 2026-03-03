@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { PhotoRouteCard } from "@/components/cards/photo-route-card";
 import { MiniPhotoCard } from "@/components/cards/mini-photo-card";
 import { useHeroPhoto } from "@/hooks/use-place-photos";
@@ -52,8 +53,8 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
         <Star
           key={n}
           style={{ width: size, height: size }}
-          fill={n <= rating ? "#00e054" : "none"}
-          stroke={n <= rating ? "#00e054" : "#456"}
+          fill={n <= rating ? "var(--rb-accent)" : "none"}
+          stroke={n <= rating ? "var(--rb-accent)" : "var(--rb-text-dim)"}
           strokeWidth={1.5}
         />
       ))}
@@ -74,15 +75,15 @@ function SectionHeader({
     <div className="flex items-center justify-between border-b border-[var(--rb-border)] pb-2 mb-4">
       <h2
         className="text-[11px] font-semibold uppercase tracking-[0.15em]"
-        style={{ color: "#9ab" }}
+        style={{ color: "var(--rb-text)" }}
       >
         {children}
       </h2>
       {href && (
         <Link
           href={href}
-          className="text-[11px] font-semibold uppercase tracking-wider hover:text-[#fff] transition-colors"
-          style={{ color: "#678" }}
+          className="text-[11px] font-semibold uppercase tracking-wider hover:text-[var(--rb-text-bright)] transition-colors"
+          style={{ color: "var(--rb-text-muted)" }}
         >
           More <ChevronRight className="inline w-3 h-3 -mt-px" />
         </Link>
@@ -131,11 +132,7 @@ function HeroBackdrop() {
         >
           {/* Background photo */}
           {heroUrl ? (
-            <img
-              src={heroUrl}
-              alt={route.long_name}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            <Image src={heroUrl} alt={route.long_name} fill className="object-cover" unoptimized priority />
           ) : (
             <div
               className="absolute inset-0"
@@ -170,7 +167,7 @@ function HeroBackdrop() {
               <Link
                 href="/search"
                 className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-semibold transition-colors bg-[var(--rb-accent)]/10 hover:bg-[var(--rb-accent)]/20 border border-[var(--rb-accent)]/30"
-                style={{ color: "#00e054" }}
+                style={{ color: "var(--rb-accent)" }}
               >
                 <RailboxdLogo size={18} animate={false} />
                 Log a Ride
@@ -230,6 +227,7 @@ function HeroBackdrop() {
             <button
               key={i}
               onClick={() => setCurrentIndex(i)}
+              aria-label={`Go to featured route ${i + 1}`}
               className={`h-1 rounded-full transition-all duration-300 ${
                 i === currentIndex ? "w-5 bg-[var(--rb-accent)]" : "w-1.5 bg-white/30"
               }`}
@@ -241,7 +239,8 @@ function HeroBackdrop() {
   );
 }
 
-/* ─── mock social data ─── */
+// Sample community activity — shown as example content.
+// In production, this would come from the Supabase social feed.
 
 const friendActivity = [
   { id: "fa-1", avatar: "AK", username: "alex_k", action: "rode", routeId: "sdmts-blue", rating: 4, timestamp: "2h ago", review: null },
@@ -254,6 +253,8 @@ const friendActivity = [
   { id: "fa-8", avatar: "KM", username: "kira_m", action: "reviewed", routeId: "sdmts-blue", rating: 5, timestamp: "1d ago", review: "America Plaza to San Ysidro — riding to the border on light rail is a trip. Best cross-border transit in the US." },
 ];
 
+// Sample community activity — shown as example content.
+// In production, this would come from the Supabase social feed.
 const popularReviews = [
   { id: "tr-1", avatar: "NR", username: "nate_rides", routeId: "amtrak-surfliner", rating: 5, text: "San Diego to LA on the Surfliner hugging the Pacific coastline. Dolphins off San Clemente, surfers at San Onofre, cold craft beer from the cafe car — this is what American rail should be.", likes: 42, timestamp: "3d ago" },
   { id: "tr-2", avatar: "EL", username: "ella_lines", routeId: "sdmts-copper", rating: 5, text: "The Copper Line through UTC is a revelation. From UCSD's Geisel Library to Old Town tacos in 20 minutes. San Diego finally connects the coast to the campus.", likes: 28, timestamp: "5d ago" },
@@ -265,8 +266,12 @@ const popularReviews = [
 export default function DashboardPage() {
   const routeLogs = useAppStore((s) => s.routeLogs);
   const loggedRouteIds = useAppStore((s) => s.loggedRouteIds);
+  const riddenRouteIds = useAppStore((s) => s.riddenRouteIds);
   const profile = useAppStore((s) => s.profile);
   const landmarkVisits = useAppStore((s) => s.landmarkVisits);
+
+  // Combined ridden count: routes that are quick-marked OR fully logged
+  const allRiddenCount = new Set([...loggedRouteIds, ...riddenRouteIds]).size;
 
   const recentLogs = [...routeLogs]
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -311,8 +316,8 @@ export default function DashboardPage() {
                       <Icon className="w-4 h-4" style={{ color: cat.color }} />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-[#fff] whitespace-nowrap">{cat.label}</p>
-                      <p className="text-[10px] text-[#678]">{cat.count} routes</p>
+                      <p className="text-xs font-semibold text-[var(--rb-text-bright)] whitespace-nowrap">{cat.label}</p>
+                      <p className="text-[10px] text-[var(--rb-text-muted)]">{cat.count} routes</p>
                     </div>
                   </Link>
                 </motion.div>
@@ -331,9 +336,9 @@ export default function DashboardPage() {
           <SectionHeader href="/search">Popular This Week</SectionHeader>
 
           <div className="flex gap-3 overflow-x-auto pb-4 -mx-1 px-1 scrollbar-hide">
-            {demoRoutes.map((route) => (
+            {demoRoutes.map((route, i) => (
               <motion.div key={route.id} variants={fadeUp} className="shrink-0">
-                <PhotoRouteCard route={route} size="sm" />
+                <PhotoRouteCard route={route} size="sm" priority={i === 0} />
               </motion.div>
             ))}
           </div>
@@ -366,8 +371,8 @@ export default function DashboardPage() {
                       {/* Avatar */}
                       <Link
                         href="#"
-                        className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold hover:ring-1 hover:ring-[#00e054] transition-all"
-                        style={{ background: "var(--rb-border)", color: "#9ab" }}
+                        className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold hover:ring-1 hover:ring-[var(--rb-accent)] transition-all"
+                        style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
                       >
                         {item.avatar}
                       </Link>
@@ -377,24 +382,24 @@ export default function DashboardPage() {
                         <p className="text-[13px] leading-snug">
                           <Link
                             href="#"
-                            className="font-semibold hover:text-[#00e054] transition-colors"
-                            style={{ color: "#fff" }}
+                            className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
+                            style={{ color: "var(--rb-text-bright)" }}
                           >
                             {item.username}
                           </Link>{" "}
-                          <span style={{ color: "#678" }}>{item.action}</span>{" "}
+                          <span style={{ color: "var(--rb-text-muted)" }}>{item.action}</span>{" "}
                           {route && (
                             <Link
                               href={`/route/${route.id}`}
-                              className="font-semibold hover:text-[#fff] transition-colors"
-                              style={{ color: "#9ab" }}
+                              className="font-semibold hover:text-[var(--rb-text-bright)] transition-colors"
+                              style={{ color: "var(--rb-text)" }}
                             >
                               {route.short_name} Line
                             </Link>
                           )}
                           {(item as { milestone?: string }).milestone && (
                             <span
-                              style={{ color: "#00e054" }}
+                              style={{ color: "var(--rb-accent)" }}
                               className="font-semibold"
                             >
                               {(item as { milestone?: string }).milestone}
@@ -411,7 +416,7 @@ export default function DashboardPage() {
                         {item.review && (
                           <p
                             className="text-xs mt-1 leading-relaxed line-clamp-2"
-                            style={{ color: "#678" }}
+                            style={{ color: "var(--rb-text-muted)" }}
                           >
                             {item.review}
                           </p>
@@ -419,7 +424,7 @@ export default function DashboardPage() {
 
                         <span
                           className="text-[10px] mt-1 block"
-                          style={{ color: "#456" }}
+                          style={{ color: "var(--rb-text-dim)" }}
                         >
                           {item.timestamp}
                         </span>
@@ -470,8 +475,8 @@ export default function DashboardPage() {
                             {route && (
                               <Link
                                 href={`/route/${route.id}`}
-                                className="text-[13px] font-bold hover:text-[#00e054] transition-colors"
-                                style={{ color: "#fff" }}
+                                className="text-[13px] font-bold hover:text-[var(--rb-accent)] transition-colors"
+                                style={{ color: "var(--rb-text-bright)" }}
                               >
                                 {route.long_name}
                               </Link>
@@ -483,16 +488,16 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-1.5 mb-2">
                           <span
                             className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold"
-                            style={{ background: "var(--rb-border)", color: "#9ab" }}
+                            style={{ background: "var(--rb-border)", color: "var(--rb-text)" }}
                           >
                             {review.avatar}
                           </span>
-                          <span className="text-xs" style={{ color: "#9ab" }}>
+                          <span className="text-xs" style={{ color: "var(--rb-text)" }}>
                             Review by{" "}
                             <Link
                               href="#"
-                              className="font-semibold hover:text-[#00e054] transition-colors"
-                              style={{ color: "#9ab" }}
+                              className="font-semibold hover:text-[var(--rb-accent)] transition-colors"
+                              style={{ color: "var(--rb-text)" }}
                             >
                               {review.username}
                             </Link>
@@ -501,14 +506,14 @@ export default function DashboardPage() {
 
                         <p
                           className="text-[13px] leading-relaxed line-clamp-3"
-                          style={{ color: "#9ab" }}
+                          style={{ color: "var(--rb-text)" }}
                         >
                           {review.text}
                         </p>
 
                         <div className="flex items-center gap-1 mt-2">
-                          <Heart className="w-3 h-3" style={{ color: "#456" }} />
-                          <span className="text-[10px]" style={{ color: "#456" }}>
+                          <Heart className="w-3 h-3" style={{ color: "var(--rb-text-dim)" }} />
+                          <span className="text-[10px]" style={{ color: "var(--rb-text-dim)" }}>
                             {review.likes} likes
                           </span>
                         </div>
@@ -533,19 +538,19 @@ export default function DashboardPage() {
                       stroke="var(--rb-accent)"
                       strokeWidth="4"
                       strokeLinecap="round"
-                      strokeDasharray={`${(loggedRouteIds.size / demoRoutes.length) * 175.9} 175.9`}
+                      strokeDasharray={`${(allRiddenCount / demoRoutes.length) * 175.9} 175.9`}
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-sm font-bold text-white">
-                      {Math.round((loggedRouteIds.size / demoRoutes.length) * 100)}%
+                      {Math.round((allRiddenCount / demoRoutes.length) * 100)}%
                     </span>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-white">SD Transit</p>
-                  <p className="text-[10px] text-[#678]">
-                    {loggedRouteIds.size}/{demoRoutes.length} routes
+                  <p className="text-[10px] text-[var(--rb-text-muted)]">
+                    {allRiddenCount}/{demoRoutes.length} routes
                   </p>
                 </div>
               </div>
@@ -555,13 +560,13 @@ export default function DashboardPage() {
             <div className="mb-6">
               <h3
                 className="text-[11px] font-semibold uppercase tracking-[0.15em] mb-3 pb-2 border-b border-[var(--rb-border)]"
-                style={{ color: "#9ab" }}
+                style={{ color: "var(--rb-text)" }}
               >
                 Your Stats
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Routes", value: loggedRouteIds.size, icon: Route },
+                  { label: "Routes", value: allRiddenCount, icon: Route },
                   { label: "Rides", value: routeLogs.length, icon: Train },
                   { label: "Landmarks", value: landmarkVisits.length, icon: Landmark },
                   { label: "Total", value: routeLogs.length + landmarkVisits.length, icon: Compass },
@@ -569,9 +574,9 @@ export default function DashboardPage() {
                   const Icon = stat.icon;
                   return (
                     <div key={stat.label} className="text-center">
-                      <Icon className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: "#456" }} />
-                      <p className="text-lg font-bold text-[#fff]">{stat.value}</p>
-                      <p className="text-[10px] uppercase tracking-wider" style={{ color: "#678" }}>
+                      <Icon className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: "var(--rb-text-dim)" }} />
+                      <p className="text-lg font-bold text-[var(--rb-text-bright)]">{stat.value}</p>
+                      <p className="text-[10px] uppercase tracking-wider" style={{ color: "var(--rb-text-muted)" }}>
                         {stat.label}
                       </p>
                     </div>
@@ -584,7 +589,7 @@ export default function DashboardPage() {
             <div className="mb-6">
               <h3
                 className="text-[11px] font-semibold uppercase tracking-[0.15em] mb-3 pb-2 border-b border-[var(--rb-border)]"
-                style={{ color: "#9ab" }}
+                style={{ color: "var(--rb-text)" }}
               >
                 Recent Diary
               </h3>
@@ -607,7 +612,7 @@ export default function DashboardPage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs truncate" style={{ color: "#9ab" }}>
+                          <p className="text-xs truncate" style={{ color: "var(--rb-text)" }}>
                             {route?.long_name ?? "Unknown"}
                           </p>
                         </div>
@@ -621,13 +626,13 @@ export default function DashboardPage() {
                   <div className="mx-auto mb-2 w-fit opacity-40">
                     <RailboxdLogo size={28} animate={false} />
                   </div>
-                  <p className="text-[11px]" style={{ color: "#678" }}>
+                  <p className="text-[11px]" style={{ color: "var(--rb-text-muted)" }}>
                     No rides logged yet.
                   </p>
                   <Link
                     href="/search"
                     className="text-[11px] font-semibold mt-1 inline-block"
-                    style={{ color: "#00e054" }}
+                    style={{ color: "var(--rb-accent)" }}
                   >
                     Log your first ride
                   </Link>
@@ -639,7 +644,7 @@ export default function DashboardPage() {
             <div>
               <h3
                 className="text-[11px] font-semibold uppercase tracking-[0.15em] mb-3 pb-2 border-b border-[var(--rb-border)]"
-                style={{ color: "#9ab" }}
+                style={{ color: "var(--rb-text)" }}
               >
                 Quick Links
               </h3>
@@ -654,8 +659,8 @@ export default function DashboardPage() {
                     <Link
                       key={link.label}
                       href={link.href}
-                      className="flex items-center gap-2 text-xs py-1 hover:text-[#00e054] transition-colors"
-                      style={{ color: "#678" }}
+                      className="flex items-center gap-2 text-xs py-1 hover:text-[var(--rb-accent)] transition-colors"
+                      style={{ color: "var(--rb-text-muted)" }}
                     >
                       <Icon className="w-3 h-3" />
                       {link.label}

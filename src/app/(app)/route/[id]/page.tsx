@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
-  Train, Star, ArrowLeft, Heart, Bookmark, Eye, Sparkles,
+  Train, Star, ArrowLeft, Heart, Bookmark, BookOpen, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore, type Review } from "@/stores/app-store";
@@ -18,12 +18,15 @@ import {
   demoRoutes,
 } from "@/lib/demo-data";
 import { PhotoRouteCard } from "@/components/cards/photo-route-card";
+import { RiddenToggle } from "@/components/log/ridden-toggle";
 import { getTransitInfo } from "@/lib/transit-history-data";
 
 const MODE_LABELS: Record<number, string> = {
   0: "Tram", 1: "Heavy Rail", 2: "Commuter Rail", 3: "Bus", 4: "Ferry",
 };
 
+// Sample reviews — shown as example content.
+// In production, reviews would come from Supabase route_logs table.
 const MOCK_REVIEWS = [
   {
     id: "r1",
@@ -119,10 +122,10 @@ export default function RouteDetailPage() {
   if (!route) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
-        <Train className="w-12 h-12 text-[#456] mb-4" />
+        <Train className="w-12 h-12 text-[var(--rb-text-dim)] mb-4" />
         <h1 className="text-xl font-semibold text-white mb-2">Route Not Found</h1>
-        <p className="text-sm text-[#678] mb-6">No route with ID &ldquo;{id}&rdquo;.</p>
-        <button onClick={() => router.push("/search")} className="px-4 py-2 rounded-lg text-sm font-medium bg-[#00e054] text-[#0a0c0f]">
+        <p className="text-sm text-[var(--rb-text-muted)] mb-6">No route with ID &ldquo;{id}&rdquo;.</p>
+        <button onClick={() => router.push("/search")} className="px-4 py-2 rounded-lg text-sm font-medium bg-[var(--rb-accent)] text-[var(--rb-bg)]">
           Back to Search
         </button>
       </div>
@@ -301,7 +304,7 @@ export default function RouteDetailPage() {
             {/* Mobile: title next to poster */}
             <div className="lg:hidden flex-1 min-w-0 pt-6 sm:pt-10">
               <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">{route.long_name}</h1>
-              <div className="flex items-center gap-1.5 mt-1 text-sm text-[#9ab] flex-wrap">
+              <div className="flex items-center gap-1.5 mt-1 text-sm text-[var(--rb-text)] flex-wrap">
                 <span>{agency?.name}</span>
                 <span className="opacity-40">&middot;</span>
                 <span>{MODE_LABELS[route.route_type] ?? "Rail"}</span>
@@ -309,30 +312,31 @@ export default function RouteDetailPage() {
               {avgRating && (
                 <div className="flex items-center gap-1 mt-2">
                   {[1,2,3,4,5].map((s) => (
-                    <Star key={s} className="w-3.5 h-3.5" fill={s <= Math.round(avgRating) ? "#00e054" : "transparent"} stroke={s <= Math.round(avgRating) ? "#00e054" : "#456"} />
+                    <Star key={s} className="w-3.5 h-3.5" fill={s <= Math.round(avgRating) ? "var(--rb-accent)" : "transparent"} stroke={s <= Math.round(avgRating) ? "var(--rb-accent)" : "var(--rb-text-dim)"} />
                   ))}
-                  <span className="text-xs text-[#678] ml-1">{avgRating.toFixed(1)}</span>
+                  <span className="text-xs text-[var(--rb-text-muted)] ml-1">{avgRating.toFixed(1)}</span>
                 </div>
               )}
             </div>
 
             {/* Desktop: action icons below poster */}
             <div className="hidden lg:flex items-center justify-center gap-1.5 mt-4 w-full">
+              <RiddenToggle routeId={id} size="md" />
               <button onClick={() => openLogModal(id)}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all border"
-                style={{ backgroundColor: isLogged ? "#00e054" : "transparent", borderColor: isLogged ? "#00e054" : "#456", color: isLogged ? "#0a0c0f" : "#9ab" }}
-                title={isLogged ? "Log another ride" : "Log this route"}>
-                <Eye className="w-5 h-5" />
+                style={{ backgroundColor: isLogged ? "color-mix(in srgb, var(--rb-accent) 12%, transparent)" : "transparent", borderColor: isLogged ? "var(--rb-accent)" : "var(--rb-text-dim)", color: isLogged ? "var(--rb-accent)" : "var(--rb-text)" }}
+                title="Log a detailed ride">
+                <BookOpen className="w-5 h-5" />
               </button>
               <button onClick={() => toggleFavorite(id)}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all border"
-                style={{ backgroundColor: fav ? "#e5406520" : "transparent", borderColor: fav ? "#e54065" : "#456", color: fav ? "#e54065" : "#9ab" }}>
-                <Heart className="w-5 h-5" fill={fav ? "#e54065" : "none"} />
+                style={{ backgroundColor: fav ? "color-mix(in srgb, var(--rb-heart) 12%, transparent)" : "transparent", borderColor: fav ? "var(--rb-heart)" : "var(--rb-text-dim)", color: fav ? "var(--rb-heart)" : "var(--rb-text)" }}>
+                <Heart className="w-5 h-5" fill={fav ? "var(--rb-heart)" : "none"} />
               </button>
               <button onClick={() => toggleBucketList(id)}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all border"
-                style={{ backgroundColor: bucket ? "#40bcf420" : "transparent", borderColor: bucket ? "#40bcf4" : "#456", color: bucket ? "#40bcf4" : "#9ab" }}>
-                <Bookmark className="w-5 h-5" fill={bucket ? "#40bcf4" : "none"} />
+                style={{ backgroundColor: bucket ? "color-mix(in srgb, var(--rb-bookmark) 12%, transparent)" : "transparent", borderColor: bucket ? "var(--rb-bookmark)" : "var(--rb-text-dim)", color: bucket ? "var(--rb-bookmark)" : "var(--rb-text)" }}>
+                <Bookmark className="w-5 h-5" fill={bucket ? "var(--rb-bookmark)" : "none"} />
               </button>
             </div>
 
@@ -341,11 +345,11 @@ export default function RouteDetailPage() {
               <div className="flex justify-center gap-0.5">
                 {[1,2,3,4,5].map((s) => (
                   <Star key={s} className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
-                    fill={avgRating && s <= Math.round(avgRating) ? "#00e054" : "transparent"}
-                    stroke={avgRating && s <= Math.round(avgRating) ? "#00e054" : "#456"} />
+                    fill={avgRating && s <= Math.round(avgRating) ? "var(--rb-accent)" : "transparent"}
+                    stroke={avgRating && s <= Math.round(avgRating) ? "var(--rb-accent)" : "var(--rb-text-dim)"} />
                 ))}
               </div>
-              {avgRating && <p className="text-center text-xs text-[#456] mt-1">Your rating: {avgRating.toFixed(1)}</p>}
+              {avgRating && <p className="text-center text-xs text-[var(--rb-text-dim)] mt-1">Your rating: {avgRating.toFixed(1)}</p>}
             </div>
           </div>
 
@@ -354,7 +358,7 @@ export default function RouteDetailPage() {
             {/* Desktop title */}
             <div className="hidden lg:block">
               <h1 className="text-[28px] font-bold text-white leading-tight">{route.long_name}</h1>
-              <div className="flex items-center gap-2 mt-1 text-[15px] text-[#9ab]">
+              <div className="flex items-center gap-2 mt-1 text-[15px] text-[var(--rb-text)]">
                 <span>{agency?.name}</span>
                 <span className="opacity-40">&middot;</span>
                 <span>{MODE_LABELS[route.route_type] ?? "Rail"}</span>
@@ -363,34 +367,35 @@ export default function RouteDetailPage() {
               </div>
             </div>
 
-            <p className="text-sm italic text-[#678] mt-3 lg:mt-4">
+            <p className="text-sm italic text-[var(--rb-text-muted)] mt-3 lg:mt-4">
               Connecting {first} to {last}
             </p>
 
             {/* Mobile actions */}
             <div className="flex lg:hidden items-center gap-2 mt-4">
+              <RiddenToggle routeId={id} size="md" showLabel />
               <button onClick={() => openLogModal(id)}
                 className="flex-1 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all"
-                style={{ backgroundColor: isLogged ? rc + "20" : rc, color: isLogged ? rc : tc, border: isLogged ? `1.5px solid ${rc}` : "none" }}>
-                {isLogged ? <><Eye className="w-4 h-4" /> Logged</> : <><Train className="w-4 h-4" /> Log This Route</>}
+                style={{ backgroundColor: rc + "15", color: rc, border: `1.5px solid ${rc}40` }}>
+                <BookOpen className="w-4 h-4" /> Log a Ride
               </button>
-              <button onClick={() => toggleFavorite(id)} className="p-2.5 rounded-lg border transition-all" style={{ borderColor: fav ? "#e54065" : "#456", color: fav ? "#e54065" : "#9ab" }}>
-                <Heart className="w-5 h-5" fill={fav ? "#e54065" : "none"} />
+              <button onClick={() => toggleFavorite(id)} className="p-2.5 rounded-lg border transition-all" style={{ borderColor: fav ? "var(--rb-heart)" : "var(--rb-text-dim)", color: fav ? "var(--rb-heart)" : "var(--rb-text)" }}>
+                <Heart className="w-5 h-5" fill={fav ? "var(--rb-heart)" : "none"} />
               </button>
-              <button onClick={() => toggleBucketList(id)} className="p-2.5 rounded-lg border transition-all" style={{ borderColor: bucket ? "#40bcf4" : "#456", color: bucket ? "#40bcf4" : "#9ab" }}>
-                <Bookmark className="w-5 h-5" fill={bucket ? "#40bcf4" : "none"} />
+              <button onClick={() => toggleBucketList(id)} className="p-2.5 rounded-lg border transition-all" style={{ borderColor: bucket ? "var(--rb-bookmark)" : "var(--rb-text-dim)", color: bucket ? "var(--rb-bookmark)" : "var(--rb-text)" }}>
+                <Bookmark className="w-5 h-5" fill={bucket ? "var(--rb-bookmark)" : "none"} />
               </button>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-0 mt-6 border-b border-[#2c3440]">
+            <div className="flex gap-0 mt-6 border-b border-[var(--rb-border)]">
               {(["stations", "details", "reviews"] as Tab[]).map((t) => (
                 <button key={t} onClick={() => setTab(t)}
                   className="relative px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors"
-                  style={{ color: tab === t ? "#fff" : "#678" }}>
+                  style={{ color: tab === t ? "#fff" : "var(--rb-text-muted)" }}>
                   {t === "stations" ? `Stations ${stations.length}` : t === "reviews" ? `Reviews ${allReviews.length}` : "Details"}
                   {tab === t && (
-                    <motion.div layoutId="rtab" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#00e054]"
+                    <motion.div layoutId="rtab" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--rb-accent)]"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }} />
                   )}
                 </button>
@@ -414,9 +419,9 @@ export default function RouteDetailPage() {
                             style={{ backgroundColor: isFirst || isLast ? rc : "var(--rb-bg)", borderColor: rc }} />
                           <div className="w-0.5 flex-1" style={{ backgroundColor: isLast ? "transparent" : rc + "40" }} />
                         </div>
-                        <span className="flex-1 text-sm text-[#9ab] group-hover:text-white transition-colors truncate">
+                        <span className="flex-1 text-sm text-[var(--rb-text)] group-hover:text-white transition-colors truncate">
                           {st.name}
-                          {(isFirst || isLast) && <span className="text-[10px] text-[#456] ml-2 uppercase">{isFirst ? "origin" : "terminus"}</span>}
+                          {(isFirst || isLast) && <span className="text-[10px] text-[var(--rb-text-dim)] ml-2 uppercase">{isFirst ? "origin" : "terminus"}</span>}
                         </span>
                         {transfers.length > 0 && (
                           <div className="flex gap-1 flex-shrink-0">
@@ -476,7 +481,7 @@ export default function RouteDetailPage() {
                     </div>
                   )}
 
-                  <dl className="divide-y divide-[#2c3440]">
+                  <dl className="divide-y divide-[var(--rb-border)]">
                     {[
                       ["Operator", agency?.name ?? "Unknown"],
                       ["Transit Mode", MODE_LABELS[route.route_type] ?? "Rail"],
@@ -486,8 +491,8 @@ export default function RouteDetailPage() {
                       ["Route ID", route.id],
                     ].map(([label, value]) => (
                       <div key={label} className="flex justify-between py-3">
-                        <dt className="text-sm text-[#678]">{label}</dt>
-                        <dd className="text-sm text-[#9ab]">{value}</dd>
+                        <dt className="text-sm text-[var(--rb-text-muted)]">{label}</dt>
+                        <dd className="text-sm text-[var(--rb-text)]">{value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -497,20 +502,20 @@ export default function RouteDetailPage() {
               {tab === "reviews" && (
                 <motion.div key="r" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-3">
                   {/* Write a Review */}
-                  <div className="border border-[#2c3440] rounded-lg p-4 mb-4">
+                  <div className="border border-[var(--rb-border)] rounded-lg p-4 mb-4">
                     <h4 className="text-sm font-semibold text-white mb-3">Write a Review</h4>
                     <div className="flex items-center gap-1 mb-3">
                       {[1,2,3,4,5].map((s) => (
-                        <button key={s} onClick={() => setReviewRating(s)} className="transition-transform hover:scale-110">
+                        <button key={s} onClick={() => setReviewRating(s)} className="transition-transform hover:scale-110" aria-label={`Rate ${s} star${s > 1 ? "s" : ""}`}>
                           <Star
                             className="w-5 h-5 cursor-pointer"
-                            fill={s <= reviewRating ? "#00e054" : "transparent"}
-                            stroke={s <= reviewRating ? "#00e054" : "#456"}
+                            fill={s <= reviewRating ? "var(--rb-accent)" : "transparent"}
+                            stroke={s <= reviewRating ? "var(--rb-accent)" : "var(--rb-text-dim)"}
                           />
                         </button>
                       ))}
                       {reviewRating > 0 && (
-                        <span className="text-xs text-[#678] ml-2">{reviewRating}/5</span>
+                        <span className="text-xs text-[var(--rb-text-muted)] ml-2">{reviewRating}/5</span>
                       )}
                     </div>
                     <textarea
@@ -518,19 +523,19 @@ export default function RouteDetailPage() {
                       onChange={(e) => setReviewText(e.target.value)}
                       placeholder="Share your thoughts on this route..."
                       rows={3}
-                      className="w-full rounded-lg border border-[#2c3440] px-3 py-2 text-sm text-white placeholder-[#456] focus:outline-none focus:border-[#00e054] transition-colors resize-none"
+                      className="w-full rounded-lg border border-[var(--rb-border)] px-3 py-2 text-sm text-white placeholder-[var(--rb-text-dim)] focus:outline-none focus:border-[var(--rb-accent)] transition-colors resize-none"
                       style={{ background: "var(--rb-bg)" }}
                     />
                     <button
                       onClick={handleSubmitReview}
-                      className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[#00e054] text-[#0a0c0f] hover:brightness-110 transition-all"
+                      className="mt-2 px-4 py-2 rounded-lg text-sm font-semibold bg-[var(--rb-accent)] text-[var(--rb-bg)] hover:brightness-110 transition-all"
                     >
                       Submit Review
                     </button>
                   </div>
 
                   {/* Reviews list */}
-                  <div className="divide-y divide-[#2c3440]">
+                  <div className="divide-y divide-[var(--rb-border)]">
                     {allReviews.map((rev) => {
                       const isLiked = likedReviews.includes(rev.id);
                       const displayLikes = rev.likes + (isLiked ? 1 : 0);
@@ -543,23 +548,23 @@ export default function RouteDetailPage() {
                             </div>
                             <span className="text-sm font-semibold text-white">{rev.username}</span>
                             {rev.isUserReview && (
-                              <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-[#00e054]/15 text-[#00e054]">You</span>
+                              <span className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-[color-mix(in_srgb,var(--rb-accent)_15%,transparent)] text-[var(--rb-accent)]">You</span>
                             )}
                             <div className="flex gap-0.5">
                               {[1,2,3,4,5].map((s) => (
-                                <Star key={s} className="w-3 h-3" fill={s <= rev.rating ? "#00e054" : "transparent"} stroke={s <= rev.rating ? "#00e054" : "#456"} />
+                                <Star key={s} className="w-3 h-3" fill={s <= rev.rating ? "var(--rb-accent)" : "transparent"} stroke={s <= rev.rating ? "var(--rb-accent)" : "var(--rb-text-dim)"} />
                               ))}
                             </div>
-                            <span className="text-xs text-[#456] ml-auto">{rev.date}</span>
+                            <span className="text-xs text-[var(--rb-text-dim)] ml-auto">{rev.date}</span>
                           </div>
-                          <p className="text-sm text-[#9ab] leading-relaxed ml-[38px]">{rev.text}</p>
+                          <p className="text-sm text-[var(--rb-text)] leading-relaxed ml-[38px]">{rev.text}</p>
                           <div className="flex items-center gap-3 mt-2 ml-[38px]">
                             <button
                               onClick={() => toggleLike(rev.id)}
                               className="flex items-center gap-1 text-xs transition-colors"
-                              style={{ color: isLiked ? "#e54065" : "#456" }}
+                              style={{ color: isLiked ? "var(--rb-heart)" : "var(--rb-text-dim)" }}
                             >
-                              <Heart className="w-3 h-3" fill={isLiked ? "#e54065" : "none"} /> {displayLikes}
+                              <Heart className="w-3 h-3" fill={isLiked ? "var(--rb-heart)" : "none"} /> {displayLikes}
                             </button>
                           </div>
                         </div>
@@ -572,7 +577,7 @@ export default function RouteDetailPage() {
 
             {/* Mobile: stats + histogram inline */}
             <div className="lg:hidden mt-8">
-              <div className="flex items-baseline gap-6 text-xs text-[#678] uppercase tracking-wider mb-4">
+              <div className="flex items-baseline gap-6 text-xs text-[var(--rb-text-muted)] uppercase tracking-wider mb-4">
                 <div><span className="text-lg font-bold text-white block leading-none">293</span>Riders</div>
                 <div><span className="text-lg font-bold text-white block leading-none">48</span>Fans</div>
                 <div><span className="text-lg font-bold text-white block leading-none">15</span>Lists</div>
@@ -581,17 +586,17 @@ export default function RouteDetailPage() {
                 <span className="text-2xl font-bold text-white">{communityAvg > 0 ? communityAvg.toFixed(1) : "---"}</span>
                 <div>
                   <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map((s) => <Star key={s} className="w-3 h-3" fill={s <= communityAvgRounded ? "#00e054" : "transparent"} stroke={s <= communityAvgRounded ? "#00e054" : "#456"} />)}
+                    {[1,2,3,4,5].map((s) => <Star key={s} className="w-3 h-3" fill={s <= communityAvgRounded ? "var(--rb-accent)" : "transparent"} stroke={s <= communityAvgRounded ? "var(--rb-accent)" : "var(--rb-text-dim)"} />)}
                   </div>
-                  <span className="text-[10px] text-[#456]">{totalRatings} ratings</span>
+                  <span className="text-[10px] text-[var(--rb-text-dim)]">{totalRatings} ratings</span>
                 </div>
               </div>
               <div className="space-y-1">
                 {RATING_DIST.map(({ stars, count }) => (
                   <div key={stars} className="flex items-center gap-2">
-                    <span className="text-[10px] text-[#456] w-3 text-right">{stars}</span>
-                    <div className="flex-1 h-[6px] bg-[#2c3440] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full bg-[#00e054]" style={{ width: `${(count / maxDist) * 100}%` }} />
+                    <span className="text-[10px] text-[var(--rb-text-dim)] w-3 text-right">{stars}</span>
+                    <div className="flex-1 h-[6px] bg-[var(--rb-border)] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-[var(--rb-accent)]" style={{ width: `${(count / maxDist) * 100}%` }} />
                     </div>
                   </div>
                 ))}
@@ -602,7 +607,7 @@ export default function RouteDetailPage() {
           {/* ── Right Sidebar ── */}
           <div className="hidden lg:block w-[240px] flex-shrink-0 pt-1">
             <div className="mb-6">
-              <div className="flex items-baseline gap-5 text-[11px] text-[#678] uppercase tracking-wider">
+              <div className="flex items-baseline gap-5 text-[11px] text-[var(--rb-text-muted)] uppercase tracking-wider">
                 <div><span className="text-lg font-bold text-white block leading-none mb-0.5">293</span>Riders</div>
                 <div><span className="text-lg font-bold text-white block leading-none mb-0.5">48</span>Fans</div>
                 <div><span className="text-lg font-bold text-white block leading-none mb-0.5">15</span>Lists</div>
@@ -610,22 +615,22 @@ export default function RouteDetailPage() {
             </div>
 
             <div className="mb-6">
-              <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-wider mb-3">Ratings</h3>
+              <h3 className="text-[11px] font-semibold text-[var(--rb-text-muted)] uppercase tracking-wider mb-3">Ratings</h3>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl font-bold text-white">{communityAvg > 0 ? communityAvg.toFixed(1) : "---"}</span>
                 <div>
                   <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map((s) => <Star key={s} className="w-3.5 h-3.5" fill={s <= communityAvgRounded ? "#00e054" : "transparent"} stroke={s <= communityAvgRounded ? "#00e054" : "#456"} />)}
+                    {[1,2,3,4,5].map((s) => <Star key={s} className="w-3.5 h-3.5" fill={s <= communityAvgRounded ? "var(--rb-accent)" : "transparent"} stroke={s <= communityAvgRounded ? "var(--rb-accent)" : "var(--rb-text-dim)"} />)}
                   </div>
-                  <span className="text-[10px] text-[#456]">{totalRatings} ratings</span>
+                  <span className="text-[10px] text-[var(--rb-text-dim)]">{totalRatings} ratings</span>
                 </div>
               </div>
               <div className="space-y-1">
                 {RATING_DIST.map(({ stars, count }) => (
                   <div key={stars} className="flex items-center gap-2">
-                    <span className="text-[10px] text-[#456] w-3 text-right">{stars}</span>
-                    <div className="flex-1 h-2 bg-[#2c3440] rounded-full overflow-hidden">
-                      <div className="h-full rounded-full bg-[#00e054]" style={{ width: `${(count / maxDist) * 100}%` }} />
+                    <span className="text-[10px] text-[var(--rb-text-dim)] w-3 text-right">{stars}</span>
+                    <div className="flex-1 h-2 bg-[var(--rb-border)] rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-[var(--rb-accent)]" style={{ width: `${(count / maxDist) * 100}%` }} />
                     </div>
                   </div>
                 ))}
@@ -633,7 +638,7 @@ export default function RouteDetailPage() {
             </div>
 
             <div>
-              <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-wider mb-3">Popular Reviews</h3>
+              <h3 className="text-[11px] font-semibold text-[var(--rb-text-muted)] uppercase tracking-wider mb-3">Popular Reviews</h3>
               <div className="space-y-3">
                 {allReviews.slice(0, 2).map((rev) => (
                   <div key={rev.id} className="group cursor-pointer">
@@ -642,12 +647,12 @@ export default function RouteDetailPage() {
                         style={{ backgroundColor: rev.avatarColor }}>
                         {rev.username[0].toUpperCase()}
                       </div>
-                      <span className="text-[11px] font-medium text-[#9ab]">{rev.username}</span>
+                      <span className="text-[11px] font-medium text-[var(--rb-text)]">{rev.username}</span>
                       <div className="flex gap-px ml-auto">
-                        {[1,2,3,4,5].map((s) => <Star key={s} className="w-2 h-2" fill={s <= rev.rating ? "#00e054" : "transparent"} stroke={s <= rev.rating ? "#00e054" : "#456"} />)}
+                        {[1,2,3,4,5].map((s) => <Star key={s} className="w-2 h-2" fill={s <= rev.rating ? "var(--rb-accent)" : "transparent"} stroke={s <= rev.rating ? "var(--rb-accent)" : "var(--rb-text-dim)"} />)}
                       </div>
                     </div>
-                    <p className="text-[11px] text-[#567] line-clamp-2 group-hover:text-[#9ab] transition-colors leading-snug">
+                    <p className="text-[11px] text-[var(--rb-text-muted)] line-clamp-2 group-hover:text-[var(--rb-text)] transition-colors leading-snug">
                       {rev.text}
                     </p>
                   </div>
@@ -659,8 +664,8 @@ export default function RouteDetailPage() {
 
         {/* ── Related Routes ── */}
         {related.length > 0 && (
-          <div className="mt-10 lg:mt-14 border-t border-[#2c3440] pt-6">
-            <h3 className="text-[11px] font-semibold text-[#678] uppercase tracking-[0.15em] mb-4">
+          <div className="mt-10 lg:mt-14 border-t border-[var(--rb-border)] pt-6">
+            <h3 className="text-[11px] font-semibold text-[var(--rb-text-muted)] uppercase tracking-[0.15em] mb-4">
               Related Routes
             </h3>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
